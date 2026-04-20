@@ -1,5 +1,5 @@
+import { ccc } from "@ckb-ccc/connector-react";
 import { createContext, useContext, useEffect, useState } from "react";
-import { ccc } from "@ckb-ccc/connector-react"
 
 //  Context for store
 const WalletConnectContext = createContext(undefined);
@@ -16,7 +16,21 @@ export function WalletConnect({ children }) {
     const [address, setAddress] = useState<string>("");
     const signer = ccc.useSigner();
 
-useEffect(()=> )
+    useEffect(() => {
+        if (!signer) {
+            return;
+        }
+        (async () => {
+            const [address, capacity] = await Promise.all([
+                signer.getRecommendedAddress(),
+                signer.getBalance()
+            ]
+            );
+
+            setAddress(address)
+            setBalance(ccc.fixedPointToString(capacity));
+        })();
+    }, [signer]);
 }
 
 
