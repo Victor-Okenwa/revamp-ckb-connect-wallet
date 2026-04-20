@@ -4,11 +4,11 @@ import { CSSProperties } from "react";
 
 export function LayoutProvider({ children }: { children: React.ReactNode }) {
     const defaultClient = React.useMemo(() => {
-        return process.env.REACT_APP_IS_MAINNET === "true"
+        return import.meta.env.VITE_IS_MAINNET === "true"
             ? new ccc.ClientPublicMainnet()
             : new ccc.ClientPublicTestnet();
     }, []);
-    
+
     return (
         <ccc.Provider
             connectorProps={{
@@ -26,7 +26,7 @@ export function LayoutProvider({ children }: { children: React.ReactNode }) {
                 } as CSSProperties,
             }}
             defaultClient={defaultClient}
-            
+
             clientOptions={[
                 {
                     name: "CKB Testnet",

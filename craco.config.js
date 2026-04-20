@@ -2,6 +2,10 @@
 const webpack = require('webpack');
 
 module.exports = {
+    devServer: (devServerConfig) => {
+        devServerConfig.port = 9150; // Set the port Craco will use
+        return devServerConfig;
+    },
     webpack: {
         configure: (webpackConfig) => {
             // 添加扩展名解析，以解决没有写完整扩展名的问题

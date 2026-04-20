@@ -1,7 +1,6 @@
 import { ccc } from "@ckb-ccc/connector-react";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-
 interface WalletConnectContextProps {
     balance: string;
     setBalance: React.Dispatch<React.SetStateAction<string>>;
@@ -36,11 +35,11 @@ export function WalletConnect({ children }: { children: React.ReactNode }) {
     const [address, setAddress] = useState<string>("");
     const signer = ccc.useSigner();
 
-    useEffect(() => {
+    useEffect(function () {
         if (!signer) {
             return;
         }
-        (async () => {
+        (async function () {
             const [address, capacity] = await Promise.all([
                 signer.getRecommendedAddress(),
                 signer.getBalance()
@@ -66,6 +65,18 @@ export function WalletConnect({ children }: { children: React.ReactNode }) {
             {children}
         </WalletConnectContext.Provider>
     )
+}
+
+export function ConnectWalletButton() {
+    const { open, wallet } = useWalletConnect();
+
+    if (wallet) return null;
+
+return (
+    <button>
+        
+    </button>
+)
 }
 
 
