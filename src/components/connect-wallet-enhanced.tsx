@@ -1,8 +1,28 @@
 import { ccc } from "@ckb-ccc/connector-react";
-import { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
+
+
+interface WalletConnectContextProps {
+    balance: string;
+    setBalance: React.Dispatch<React.SetStateAction<string>>;
+    address: string;
+    setAddress: React.Dispatch<React.SetStateAction<string>>;
+    open: () => unknown
+    wallet: ccc.Wallet | undefined
+}
+
+const initialWalletConnectState: WalletConnectContextProps = {
+    balance: "",
+    setBalance: () => { },
+    address: "",
+    setAddress: () => { },
+    open: () => { },
+    wallet: undefined
+};
+
 
 //  Context for store
-const WalletConnectContext = createContext(undefined);
+const WalletConnectContext = createContext<WalletConnectContextProps>(initialWalletConnectState);
 
 function useWalletConnect() {
     const context = useContext(WalletConnectContext);
@@ -10,7 +30,7 @@ function useWalletConnect() {
     return context;
 }
 
-export function WalletConnect({ children }) {
+export function WalletConnect({ children }: { children: React.ReactNode }) {
     const { open, wallet } = ccc.useCcc();
     const [balance, setBalance] = useState<string>("");
     const [address, setAddress] = useState<string>("");
@@ -31,6 +51,21 @@ export function WalletConnect({ children }) {
             setBalance(ccc.fixedPointToString(capacity));
         })();
     }, [signer]);
+
+    const values = {
+        balance,
+        setBalance,
+        address,
+        setAddress,
+        open,
+        wallet
+    }
+
+    return (
+        <WalletConnectContext.Provider value={values}>
+            {children}
+        </WalletConnectContext.Provider>
+    )
 }
 
 
