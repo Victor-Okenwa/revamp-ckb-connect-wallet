@@ -1,8 +1,9 @@
 import React from 'react';
 import ConnectWallet from './components/ConnectWallet';
+import { WalletConnect, WalletConnectButton, WalletConnectInfoBalance, WalletConnectInfoContainer, WalletConnectInfoImage } from './components/connect-wallet-enhanced';
 
 function App() {
-  
+
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start max-w-2xl">
@@ -19,17 +20,23 @@ function App() {
           <span className="text-2xl font-semibold">Why CCC?</span>
           <div className='flex flex-col gap-2 items-start'>
             <li>One-stop solution for your <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-            CKB JS/TS</code>
-            ecosystem development.</li>
+              CKB JS/TS</code>
+              ecosystem development.</li>
             <li>Empower yourself with CCC to discover the unlimited potential of CKB.</li>
             <li>Interoperate with wallets from different chain ecosystems.</li>
             <li>Fully enabling CKB's Turing completeness and cryptographic freedom power.</li>
           </div>
-          
+
         </div>
         <div className="flex gap-4 items-center place-self-center">
-          
-          <ConnectWallet></ConnectWallet>
+          <WalletConnect>
+            <WalletConnectButton />
+            <WalletConnectInfoContainer>
+              <WalletConnectInfoBalance />
+              <WalletConnectInfoImage />
+            </WalletConnectInfoContainer>
+          </WalletConnect>
+          <ConnectWallet />
           <a
             className="rounded-full border border-solid border-black/[1] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
             href="https://docs.ckbccc.com/"

@@ -1,7 +1,7 @@
 /* eslint-disable*/
 import React, { useEffect, useState } from "react";
 import { ccc } from "@ckb-ccc/connector-react";
-import { truncateAddress } from "../utils/stringUtils";
+import { truncateAddress } from "../utils/utils";
 
 const ConnectWallet: React.FC = () => {
     const { open, wallet } = ccc.useCcc();
