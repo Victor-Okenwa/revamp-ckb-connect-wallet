@@ -1,7 +1,7 @@
 import { ccc } from "@ckb-ccc/connector-react";
 import { ClassValue } from "clsx";
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { cn } from "../utils/utils";
+import { cn, truncateAddress } from "../utils/utils";
 
 interface WalletConnectContextProps {
     balance: string;
@@ -96,7 +96,7 @@ export function WalletConnectInfoContainer({ children, className = ""
 
     if (!wallet) return null;
     return (
-        <button className={cn("cursor-pointer rounded-full border border-solid border-transparent transition-colors bg-black dark:bg-white text-white dark:text-black hover:opacity-90  text-sm sm:text-base font-bold px-5 py-3", className)}
+        <button className={cn("cursor-pointer rounded-full border border-solid border-transparent transition-colors bg-black dark:bg-white text-white dark:text-black hover:opacity-90 h-10 sm:h-12 text-sm sm:text-base font-bold px-5 py-3", className)}
             onClick={open}>
             {children}
         </button>
@@ -128,8 +128,31 @@ export function WalletConnectInfoBalance({ className = "",
 
     if (!wallet) return null;
 
+    const formatter = new Intl.NumberFormat('en-US', {
+        maximumFractionDigits: decimalPlaces, // Controls decimal places
+        roundingMode: 'trunc',    // Forces it to cut off instead of rounding up
+    });
+
     return (
-        <span className={cn("font-bold text-sm", className)}>{decimalPlaces !== undefined ? parseInt(balance).toFixed(decimalPlaces) : balance}</span>
+        <span className={cn("font-bold text-sm", className)}>{decimalPlaces !== undefined ? formatter.format(Number(balance)) : balance}</span>
     )
 }
 
+export function WalletConnectInfoAddress({ className = "",
+    frontChars = 10,
+    endChars = 6,
+}: {
+    className?: ClassValue;
+    frontChars?: number,
+    endChars?: number,
+}) {
+    const { wallet, address } = useWalletConnect();
+
+    if (!wallet) return null;
+
+    return (
+        <span className={cn("text-xs font-normal", className)}>
+            {truncateAddress(address, frontChars, endChars)}
+        </span>
+    )
+}

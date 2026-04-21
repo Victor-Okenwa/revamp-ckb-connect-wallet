@@ -1,6 +1,6 @@
 import React from 'react';
 import ConnectWallet from './components/ConnectWallet';
-import { WalletConnect, WalletConnectButton, WalletConnectInfoBalance, WalletConnectInfoContainer, WalletConnectInfoImage } from './components/connect-wallet-enhanced';
+import { WalletConnect, WalletConnectButton, WalletConnectInfoAddress, WalletConnectInfoBalance, WalletConnectInfoContainer, WalletConnectInfoImage } from './components/connect-wallet-enhanced';
 
 function App() {
 
@@ -31,11 +31,15 @@ function App() {
         <div className="flex gap-4 items-center place-self-center">
           <WalletConnect>
             <WalletConnectButton />
-            <WalletConnectInfoContainer>
-              <WalletConnectInfoBalance />
+            <WalletConnectInfoContainer className="flex gap-2 items-center">
               <WalletConnectInfoImage />
+              <div className='flex flex-col items-start'>
+                <WalletConnectInfoBalance decimalPlaces={2} />
+                <WalletConnectInfoAddress />
+              </div>
             </WalletConnectInfoContainer>
           </WalletConnect>
+
           <ConnectWallet />
           <a
             className="rounded-full border border-solid border-black/[1] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
