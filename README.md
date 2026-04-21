@@ -57,4 +57,4 @@ function Header() {
 
 ## Full Documentation
 For complete architecture, API reference, data flow, migration guide, edge cases, and future extensions, see:
-[View full documentation →](ARCHITECTURE.md)
+[View full documentation →](./ARCHITECTURE.md)
