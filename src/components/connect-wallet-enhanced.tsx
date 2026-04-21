@@ -119,9 +119,11 @@ export function WalletConnectInfoImage({ className = ""
 type DecimalPlaces = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20;
 
 export function WalletConnectInfoBalance({ className = "",
-    decimalPlaces
+    decimalPlaces,
+    withCurrency = true
 }: {
     decimalPlaces?: DecimalPlaces;
+    withCurrency?: boolean;
     className?: ClassValue
 }) {
     const { wallet, balance } = useWalletConnect();
@@ -134,7 +136,13 @@ export function WalletConnectInfoBalance({ className = "",
     });
 
     return (
-        <span className={cn("font-bold text-sm", className)}>{decimalPlaces !== undefined ? formatter.format(Number(balance)) : balance}</span>
+        <h3 className={cn("font-semibold text-sm", className)}>{decimalPlaces !== undefined ? formatter.format(Number(balance)) : balance}
+            {withCurrency &&
+                <span>
+                    {" "}
+                    CKB
+                </span>}
+        </h3>
     )
 }
 

@@ -34,8 +34,8 @@ function App() {
             <WalletConnectInfoContainer className="flex gap-2 items-center">
               <WalletConnectInfoImage />
               <div className='flex flex-col items-start'>
-                <WalletConnectInfoBalance decimalPlaces={2} />
-                <WalletConnectInfoAddress />
+                <WalletConnectInfoBalance decimalPlaces={5} />
+                <WalletConnectInfoAddress frontChars={5} endChars={3} />
               </div>
             </WalletConnectInfoContainer>
           </WalletConnect>

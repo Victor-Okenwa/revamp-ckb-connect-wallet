@@ -1,55 +1,60 @@
-# Getting Started with Create React App
+# WalletConnect Compound Component
 
-This project was created as a [Create React App](https://github.com/facebook/create-react-app) project using the [create-ccc-app](https://github.com/CKBFansDAO/create-ccc-app) CLI tool.
+**Modern, flexible wallet connection UI for `@ckb-ccc/connector-react` (Nervos CKB)**
 
-## CCC Resource
+A clean compound component that replaces the old monolithic `ConnectWallet`.  
+Full control over layout, styling, balance formatting, address truncation, and currency display — with zero prop drilling.
 
-To learn more about CCC, take a look at the following resources:
+---
 
-- [CCC Documentation](https://docs.ckbccc.com/) - learn about CCC features and API.
-- [CCC Demo](https://app.ckbccc.com) - Code examples for invoking CCC in various use cases.
+## ✨ Features
 
-You can check out [the CCC GitHub repository](https://github.com/ckb-devrel/ccc) - your feedback and contributions are welcome!
+- **Compound pattern** – compose exactly the UI you want
+- **No prop drilling** – everything shared via React Context
+- **Optimized** – single `Promise.all` for address + balance
+- **Highly customizable**
+  - Balance: `decimalPlaces` (0–20), `withCurrency`, truncation
+  - Address: custom `frontChars` / `endChars`
+  - Full Tailwind class overrides via `className`
+- **Auto hide/show** – button vs. connected info
+- **Dark mode ready** + modern default styles
+- **Type-safe** – TypeScript everywhere
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## Quick Start
 
-### `npm start`
+```tsx
+import {
+  WalletConnect,
+  WalletConnectButton,
+  WalletConnectInfoContainer,
+  WalletConnectInfoImage,
+  WalletConnectInfoBalance,
+  WalletConnectInfoAddress,
+} from './WalletConnect';
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+function Header() {
+  return (
+    <WalletConnect>
+      <div className="flex items-center gap-4">
+        {/* Disconnected state */}
+        <WalletConnectButton className="px-6 py-2.5" />
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+        {/* Connected state */}
+        <WalletConnectInfoContainer className="px-4">
+          <WalletConnectInfoImage />
+          <div className="flex flex-col">
+            <WalletConnectInfoBalance decimalPlaces={4} withCurrency />
+            <WalletConnectInfoAddress frontChars={6} endChars={4} />
+          </div>
+        </WalletConnectInfoContainer>
+      </div>
+    </WalletConnect>
+  );
+}
+```
 
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Full Documentation
+For complete architecture, API reference, data flow, migration guide, edge cases, and future extensions, see:
+[View full documentation →](ARCHITECTURE.md)
