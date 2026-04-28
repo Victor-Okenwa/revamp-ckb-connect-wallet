@@ -3,7 +3,7 @@ import { ClassValue } from "clsx";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { cn, truncateAddress } from "../utils/utils";
 
-interface WalletConnectContextProps {
+interface ConnectWalletContextProps {
     balance: string;
     setBalance: React.Dispatch<React.SetStateAction<string>>;
     address: string;
@@ -12,7 +12,7 @@ interface WalletConnectContextProps {
     wallet: ccc.Wallet | undefined
 }
 
-const initialWalletConnectState: WalletConnectContextProps = {
+const initialWalletConnectState: ConnectWalletContextProps = {
     balance: "",
     setBalance: () => { },
     address: "",
@@ -23,34 +23,42 @@ const initialWalletConnectState: WalletConnectContextProps = {
 
 
 //  Context for store
-const WalletConnectContext = createContext<WalletConnectContextProps>(initialWalletConnectState);
+const ConnectWalletContext = createContext<ConnectWalletContextProps>(initialWalletConnectState);
 
-function useWalletConnect() {
-    const context = useContext(WalletConnectContext);
+function useConnectWallet() {
+    const context = useContext(ConnectWalletContext);
     if (!context) throw new Error("Wallet connect components must be used within <WalletConnect />");
     return context;
 }
 
-export function WalletConnect({ children }: { children: React.ReactNode }) {
+export function ConnectWallet({ children }: { children: React.ReactNode }) {
     const { open, wallet } = ccc.useCcc();
     const [balance, setBalance] = useState<string>("");
     const [address, setAddress] = useState<string>("");
     const signer = ccc.useSigner();
 
-    useEffect(function () {
-        if (!signer) {
-            return;
-        }
-        (async function () {
-            const [address, capacity] = await Promise.all([
-                signer.getRecommendedAddress(),
-                signer.getBalance()
-            ]
-            );
+    useEffect(() => {
+        if (!signer) return;
 
-            setAddress(address)
-            setBalance(ccc.fixedPointToString(capacity));
+        let isMounted = true;
+
+        (async () => {
+            try {
+                const [address, capacity] = await Promise.all([
+                    signer.getRecommendedAddress(),
+                    signer.getBalance()
+                ]);
+
+                if (isMounted) {
+                    setAddress(address);
+                    setBalance(ccc.fixedPointToString(capacity));
+                }
+            } catch (error) {
+                console.error('Failed to fetch data:', error);
+            }
         })();
+
+        return () => { isMounted = false; };
     }, [signer]);
 
     const values = {
@@ -63,18 +71,18 @@ export function WalletConnect({ children }: { children: React.ReactNode }) {
     }
 
     return (
-        <WalletConnectContext.Provider value={values}>
+        <ConnectWalletContext.Provider value={values}>
             {children}
-        </WalletConnectContext.Provider>
+        </ConnectWalletContext.Provider>
     )
 }
 
-export function WalletConnectButton({
+export function ConnectWalletButton({
     className = ""
 }: {
     className?: ClassValue
 }) {
-    const { open, wallet } = useWalletConnect();
+    const { open, wallet } = useConnectWallet();
 
     if (wallet) return null;
 
@@ -87,27 +95,27 @@ export function WalletConnectButton({
     )
 }
 
-export function WalletConnectInfoContainer({ children, className = ""
+export function ConnectWalletInfoContainer({ children, className = ""
 }: {
     children: React.ReactNode;
     className?: ClassValue
 }) {
-    const { open, wallet } = useWalletConnect();
+    const { open, wallet } = useConnectWallet();
 
     if (!wallet) return null;
     return (
-        <button className={cn("cursor-pointer rounded-full border border-solid border-transparent transition-colors bg-black dark:bg-white text-white dark:text-black hover:opacity-90 h-10 sm:h-12 text-sm sm:text-base font-bold px-5 py-3", className)}
+        <button className={cn("cursor-pointer rounded-full border border-solid border-transparent transition-colors bg-black dark:bg-white text-white dark:text-black hover:opacity-90 text-sm sm:text-base font-bold px-5 py-3", className)}
             onClick={open}>
             {children}
         </button>
     )
 }
 
-export function WalletConnectInfoImage({ className = ""
+export function ConnectWalletInfoImage({ className = ""
 }: {
     className?: ClassValue
 }) {
-    const { wallet } = useWalletConnect();
+    const { wallet } = useConnectWallet();
 
     if (!wallet) return null;
 
@@ -118,7 +126,7 @@ export function WalletConnectInfoImage({ className = ""
 
 type DecimalPlaces = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20;
 
-export function WalletConnectInfoBalance({ className = "",
+export function ConnectWalletInfoBalance({ className = "",
     decimalPlaces,
     withCurrency = true
 }: {
@@ -126,7 +134,7 @@ export function WalletConnectInfoBalance({ className = "",
     withCurrency?: boolean;
     className?: ClassValue
 }) {
-    const { wallet, balance } = useWalletConnect();
+    const { wallet, balance } = useConnectWallet();
 
     if (!wallet) return null;
 
@@ -146,7 +154,7 @@ export function WalletConnectInfoBalance({ className = "",
     )
 }
 
-export function WalletConnectInfoAddress({ className = "",
+export function ConnectWalletInfoAddress({ className = "",
     frontChars = 10,
     endChars = 6,
 }: {
@@ -154,7 +162,7 @@ export function WalletConnectInfoAddress({ className = "",
     frontChars?: number,
     endChars?: number,
 }) {
-    const { wallet, address } = useWalletConnect();
+    const { wallet, address } = useConnectWallet();
 
     if (!wallet) return null;
 

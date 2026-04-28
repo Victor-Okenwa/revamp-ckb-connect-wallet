@@ -1,103 +1,98 @@
-import React from 'react';
-import ConnectWallet from './components/ConnectWallet';
-import { WalletConnect, WalletConnectButton, WalletConnectInfoAddress, WalletConnectInfoBalance, WalletConnectInfoContainer, WalletConnectInfoImage } from './components/connect-wallet-enhanced';
+import { ConnectWallet, ConnectWalletButton, ConnectWalletInfoAddress, ConnectWalletInfoBalance, ConnectWalletInfoContainer, ConnectWalletInfoImage } from './components/connect-wallet-enhanced';
+// import ConnectWallet from './components/ConnectWallet';
 
 function App() {
 
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start max-w-2xl">
-        <p className="text-2xl font-bold animate-bounce">Well done! You can now cook up CKB dApp with <span className="text-cyan-600">CCC</span>!</p>
-        <img
-          className="dark:invert place-self-center spin-slow"
-          src="/images/ccc-logo.svg"
-          alt="CCC logo"
-          width={150}
-          height={150}
-        />
+    <div className="flex flex-col items-center">
 
-        <div className="flex flex-col gap-3 items-center w-full">
-          <span className="text-2xl font-semibold">Why CCC?</span>
-          <div className='flex flex-col gap-2 items-start'>
-            <li>One-stop solution for your <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              CKB JS/TS</code>
-              ecosystem development.</li>
-            <li>Empower yourself with CCC to discover the unlimited potential of CKB.</li>
-            <li>Interoperate with wallets from different chain ecosystems.</li>
-            <li>Fully enabling CKB's Turing completeness and cryptographic freedom power.</li>
+      <main className="flex flex-col gap-8 row-start-2 items-center max-w-2xl">
+        <hgroup>
+          <h1 className='text-xl'>CKB Connect Wallet Component Refactor </h1>
+        </hgroup>
+
+        <div className="flex gap-4 items-center justify-center">
+
+          <div>
+            <h3>NEW</h3>
+            <ConnectWallet>
+              <ConnectWalletButton />
+
+              <ConnectWalletInfoContainer className="flex gap-1">
+
+                <ConnectWalletInfoImage />
+
+                <div className="flex flex-col gap-2">
+                  <ConnectWalletInfoBalance decimalPlaces={7} withCurrency={false} />
+                  <ConnectWalletInfoAddress frontChars={5} endChars={12} />
+                </div>
+              </ConnectWalletInfoContainer>
+            </ConnectWallet>
+
           </div>
 
+          {/* <div>
+            <h3>OLD</h3>
+            <ConnectWallet />
+          </div> */}
         </div>
-        <div className="flex gap-4 items-center place-self-center">
-          <WalletConnect>
-            <WalletConnectButton />
-            <WalletConnectInfoContainer className="flex gap-2 items-center">
-              <WalletConnectInfoImage />
-              <div className='flex flex-col items-start'>
-                <WalletConnectInfoBalance decimalPlaces={5} />
-                <WalletConnectInfoAddress frontChars={5} endChars={3} />
-              </div>
-            </WalletConnectInfoContainer>
-          </WalletConnect>
 
-          <ConnectWallet />
+        <a
+          className="rounded-full border border-solid border-black dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
+          href="https://docs.ckbccc.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Read docs
+        </a>
+        <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
           <a
-            className="rounded-full border border-solid border-black/[1] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://docs.ckbccc.com/"
+            className="flex items-center gap-2 hover:underline hover:underline-offset-4"
+            href="https://github.com/ckb-devrel/ccc"
             target="_blank"
             rel="noopener noreferrer"
           >
-            Read our docs
+            <img
+              aria-hidden
+              src="/images/github.svg"
+              alt="github icon"
+              width={16}
+              height={16}
+            />
+            GitHub
           </a>
-        </div>
+          <a
+            className="flex items-center gap-2 hover:underline hover:underline-offset-4"
+            href="https://app.ckbccc.com"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img
+              aria-hidden
+              src="/images/window.svg"
+              alt="Window icon"
+              width={16}
+              height={16}
+            />
+            Examples
+          </a>
+          <a
+            className="flex items-center gap-2 hover:underline hover:underline-offset-4"
+            href="https://x.com/CKBDevrel"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img
+              aria-hidden
+              src="/images/x-logo.svg"
+              alt="x icon"
+              width={16}
+              height={16}
+            />
+            Follow us →
+          </a>
+        </footer>
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://github.com/ckb-devrel/ccc"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img
-            aria-hidden
-            src="/images/github.svg"
-            alt="github icon"
-            width={16}
-            height={16}
-          />
-          GitHub
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://app.ckbccc.com"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img
-            aria-hidden
-            src="/images/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://x.com/CKBDevrel"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img
-            aria-hidden
-            src="/images/x-logo.svg"
-            alt="x icon"
-            width={16}
-            height={16}
-          />
-          Follow us →
-        </a>
-      </footer>
     </div>
   );
 }
