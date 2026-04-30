@@ -1,23 +1,23 @@
 # ARCHITECTURE.md
 
-**WalletConnect Compound Component – Full Architecture & Documentation**  
-**Version:** 1.0  
-**Date:** April 21, 2026  
-**Library:** `@ckb-ccc/connector-react` (Nervos CKB ecosystem)  
+**ConnectWallet Compound Component – Full Architecture & Documentation**
+**Version:** 1.1
+**Date:** April 30, 2026
+**Library:** `@ckb-ccc/connector-react` (Nervos CKB ecosystem)
 **Pattern:** Compound Component + Context API  
 
 ---
 
 ## Table of Contents
 
-1. [Overview](#1-overview)  
-2. [Why Compound Components?](#2-why-compound-components)  
-3. [Architecture Diagram](#3-architecture-diagram)  
-4. [Core Files](#4-core-files)  
-5. [API Reference](#5-api-reference)  
-   - 5.1 [Provider – `WalletConnect`](#51-provider---walletconnect)  
-   - 5.2 [Hook – `useWalletConnect`](#52-hook---usewalletconnect)  
-   - 5.3 [Sub-Components](#53-sub-components)  
+1. [Overview](#1-overview)
+2. [Why Compound Components?](#2-why-compound-components)
+3. [Architecture Diagram](#3-architecture-diagram)
+4. [Core Files](#4-core-files)
+5. [API Reference](#5-api-reference)
+    - 5.1 [Provider – `ConnectWallet`](#51-provider---connectwallet)
+    - 5.2 [Hook – `useConnectWallet`](#52-hook---useconnectwallet)
+    - 5.3 [Sub-Components](#53-sub-components)
 6. [Feature Deep Dive](#6-feature-deep-dive)  
    - 6.1 [Balance Number Formatting](#61-balance-number-formatting)  
    - 6.2 [Currency Control](#62-currency-control)  
@@ -36,7 +36,7 @@
 
 ## 1. Overview
 
-This module replaces the original monolithic `ConnectWallet` component with a modern **compound component pattern** built on React Context. It delivers a flexible, reusable, and highly customizable wallet connection UI for any Nervos CKB dApp using `@ckb-ccc/connector-react`.
+This module provides a modern **compound component pattern** built on React Context. It delivers a flexible, reusable, and highly customizable wallet connection UI for any Nervos CKB dApp using `@ckb-ccc/connector-react`.
 
 **Core objectives of the redesign:**
 - Complete layout and styling freedom (no more fixed JSX)
@@ -51,11 +51,11 @@ This module replaces the original monolithic `ConnectWallet` component with a mo
 
 ## 2. Why Compound Components?
 
-| Aspect                     | Old Monolithic `ConnectWallet`                  | New Compound `WalletConnect`                          | Benefit |
+| Aspect                     | Old Monolithic `ConnectWallet`                  | New Compound `ConnectWallet`                          | Benefit |
 |---------------------------|------------------------------------------------|-------------------------------------------------------|---------|
 | Styling / Layout          | Hard-coded JSX                                 | Fully composable children + `className`               | Any UI design possible |
 | Reusability               | Single component only                          | Multiple sub-components + hook                        | Use in header, modal, dropdown, etc. |
-| State Management          | Internal `useState` + duplicated logic         | Shared via Context + `useWalletConnect()`             | No duplication |
+| State Management          | Internal `useState` + duplicated logic         | Shared via Context + `useConnectWallet()`             | No duplication |
 | Data Fetching             | Two separate async calls                       | Single `Promise.all`                                  | Fewer re-renders, cleaner code |
 | Extensibility             | Difficult to customize parts                   | Granular exports + hook for custom components         | Future-proof |
 | Bundle / Tree-shaking     | Everything always included                     | Only imported sub-components                          | Better performance |
@@ -65,17 +65,17 @@ This module replaces the original monolithic `ConnectWallet` component with a mo
 
 ## 3. Architecture Diagram (text)
 <pre>
-WalletConnect (Provider)
-├── Context (WalletConnectContext)
-│
-├── useWalletConnect() hook
-│
-├── WalletConnectButton          → renders only when disconnected
-├── WalletConnectInfoContainer   → renders only when connected
-│     ├── WalletConnectInfoImage
-│     ├── WalletConnectInfoBalance   (formatting options)
-│     └── WalletConnectInfoAddress   (truncation options)
-│
+ConnectWallet (Provider)
+├── Context (ConnectWalletContext)
+
+├── useConnectWallet() hook
+
+├── ConnectWalletButton          → renders only when disconnected
+├── ConnectWalletInfoContainer   → renders only when connected
+│     ├── ConnectWalletInfoImage
+│     ├── ConnectWalletInfoBalance   (formatting options)
+│     └── ConnectWalletInfoAddress   (truncation options)
+
 └── (Users can add their own custom sub-components using the hook)
 </pre>
 
@@ -86,7 +86,7 @@ All sub-components read from the shared context automatically. The provider hand
 
 ## 4. Core Files
 
-- **`WalletConnect.tsx`** – Provider + all sub-components (single file, easy to maintain)
+- **`connect-wallet-enhanced.tsx`** – Provider + all sub-components (single file, easy to maintain)
 - **`../utils/utils.ts`** – `cn` (clsx + tailwind-merge) and `truncateAddress` (unchanged)
 
 No additional files or dependencies beyond what you already have.
@@ -95,65 +95,69 @@ No additional files or dependencies beyond what you already have.
 
 ## 5. API Reference
 
-### 5.1 Provider – `WalletConnect`
+### 5.1 Provider – `ConnectWallet`
 
 ```tsx
-<WalletConnect>
+<ConnectWallet>
   {/* All sub-components must be children of this provider */}
-</WalletConnect>
+</ConnectWallet>
 ```
 
 __Responsibilities:__
 
-- Manages balance, address, and signer state
+- Manages balance, address, signer, and loading state
 - Fetches data with Promise.all when signer is available
 - Automatically re-fetches on wallet change / reconnect
 - Provides context to all children
+- Handles loading states during data fetching
 
-### 5.2 Hook – `useWalletConnect()`
+### 5.2 Hook – `useConnectWallet()`
 
 ```tsx
-const { balance, setBalance, address, setAddress, open, wallet } = useWalletConnect();
+const { isLoading, balance, setBalance, address, setAddress, open, wallet } = useConnectWallet();
 ```
 
-- Must be used inside `<WalletConnect>`
+- Must be used inside `<ConnectWallet>`
 - Throws clear error if used outside
 - Exposes everything for advanced custom components
+- Includes loading state for UI feedback during data fetching
 
 ### 5.3 Sub-Components
-__WalletConnectButton__
+__ConnectWalletButton__
 
 - Renders only when not connected
 - Default modern black/white styling with dark mode
 - onClick={open} from CCC
 - Accepts className?: ClassValue
+- Shows loading animation when fetching data
 
-__WalletConnectInfoContainer__
+__ConnectWalletInfoContainer__
 
 - Renders only when connected
 - Clickable wallet pill `(onClick={open})`
 - Wraps your custom connected UI
 - Accepts className?: ClassValue
+- Shows loading animation when fetching data
 
-__WalletConnectInfoImage__
+__ConnectWalletInfoImage__
 
 Renders wallet icon (wallet.icon)
 Accepts className?: ClassValue
 
-__WalletConnectInfoBalance__
+__ConnectWalletInfoBalance__
 
 ```tsx
-<WalletConnectInfoBalance
+<ConnectWalletInfoBalance
   decimalPlaces={4}        // 0–20 (type-safe)
   withCurrency={true}      // show/hide " CKB"
   className="text-lg font-bold"
 />
 ```
 
-__WalletConnectInfoAddress__
+__ConnectWalletInfoAddress__
 
 ```tsx
-<WalletConnectInfoAddress
+<ConnectWalletInfoAddress
   frontChars={8}
   endChars={6}
   className="font-mono"
@@ -187,12 +191,20 @@ decimalPlaces?: DecimalPlaces (type 0 | 1 | ... | 20)`
 - Default styles are clean, modern, and dark-mode ready
 - No hard-coded colors in logic
 
+### 6.5 Loading State
+
+- `isLoading` state managed in context, set to true during data fetching
+- Button and info container components show `animate-pulse` when loading
+- Automatically handled during address and balance fetching
+- Provides visual feedback to users during async operations
+
 ## 7. Data Flow & Performance
 
 - User clicks button → open() from CCC
 - CCC provides new signer
+- Loading state set to true
 - useEffect triggers Promise.all([getRecommendedAddress(), getBalance()])
-- State updates are batched → single re-render
+- State updates are batched → single re-render (including loading: false)
 - All sub-components re-render only when needed via Context
 
 __Benefits:__
@@ -203,9 +215,10 @@ __Benefits:__
 
 ## 8. State Management
 
-- Internal state (balance, address) lives only in the Provider
+- Internal state (balance, address, isLoading) lives only in the Provider
 - CCC state (open, wallet, signer) comes from ccc.useCcc() and ccc.useSigner()
 - Context value is recreated only when state actually changes
+- Loading state managed separately for UI feedback during async operations
 
 ## 9. Migration Guide (Old → New)
 __Old (monolithic):__
@@ -215,46 +228,46 @@ __Old (monolithic):__
 
 __New (compound):__
 ```tsx
-<WalletConnect>
-  <WalletConnectButton className="..." />
-  
-  <WalletConnectInfoContainer className="...">
-    <WalletConnectInfoImage />
+<ConnectWallet>
+  <ConnectWalletButton className="..." />
+
+  <ConnectWalletInfoContainer className="...">
+    <ConnectWalletInfoImage />
     <div className="flex flex-col items-start">
-      <WalletConnectInfoBalance decimalPlaces={4} withCurrency />
-      <WalletConnectInfoAddress frontChars={6} endChars={4} />
+      <ConnectWalletInfoBalance decimalPlaces={4} withCurrency />
+      <ConnectWalletInfoAddress frontChars={6} endChars={4} />
     </div>
-  </WalletConnectInfoContainer>
-</WalletConnect>
+  </ConnectWalletInfoContainer>
+</ConnectWallet>
 ```
 
 10. Example Usage (Real-world Header)
 
 ```tsx
 import {
-  WalletConnect,
-  WalletConnectButton,
-  WalletConnectInfoContainer,
-  WalletConnectInfoImage,
-  WalletConnectInfoBalance,
-  WalletConnectInfoAddress,
-} from './WalletConnect';
+  ConnectWallet,
+  ConnectWalletButton,
+  ConnectWalletInfoContainer,
+  ConnectWalletInfoImage,
+  ConnectWalletInfoBalance,
+  ConnectWalletInfoAddress,
+} from './connect-wallet-enhanced';
 
 export default function Header() {
   return (
-    <WalletConnect>
+    <ConnectWallet>
       <div className="flex items-center gap-4">
-        <WalletConnectButton className="px-6 py-2.5" />
-        
-        <WalletConnectInfoContainer className="px-4 gap-3">
-          <WalletConnectInfoImage className="mr-1" />
+        <ConnectWalletButton className="px-6 py-2.5" />
+
+        <ConnectWalletInfoContainer className="px-4 gap-3">
+          <ConnectWalletInfoImage className="mr-1" />
           <div className="flex flex-col">
-            <WalletConnectInfoBalance decimalPlaces={4} withCurrency />
-            <WalletConnectInfoAddress frontChars={6} endChars={4} />
+            <ConnectWalletInfoBalance decimalPlaces={4} withCurrency />
+            <ConnectWalletInfoAddress frontChars={6} endChars={4} />
           </div>
-        </WalletConnectInfoContainer>
+        </ConnectWalletInfoContainer>
       </div>
-    </WalletConnect>
+    </ConnectWallet>
   );
 }
 ```
@@ -262,10 +275,11 @@ export default function Header() {
 ## 11. Edge Cases & Error Handling
 
 - No signer → nothing fetched, components gracefully hide
-- Wallet disconnect → automatically switches to WalletConnectButton
+- Wallet disconnect → automatically switches to ConnectWalletButton
 - Invalid decimalPlaces → TypeScript prevents it at compile time
 - Empty balance/address → safe fallbacks
 - Context misuse → clear runtime error with helpful message
+- Loading state handled during data fetching, with visual feedback
 
 ## 12. Accessibility & Best Practices
 
@@ -278,10 +292,10 @@ export default function Header() {
 
 ## 13. Future Extensions (Suggested)
 
-- WalletConnectBalanceOnly (standalone balance badge)
+- ConnectWalletBalanceOnly (standalone balance badge)
 - Copy-to-clipboard address button
 - Network badge / chain indicator
-- Loading skeleton state
+- Enhanced loading skeleton states
 - Custom formatBalance prop for advanced formatters
 - Balance refresh button / interval option
 

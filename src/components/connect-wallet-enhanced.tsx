@@ -4,6 +4,8 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { cn, truncateAddress } from "../utils/utils";
 
 interface ConnectWalletContextProps {
+    isLoading: boolean;
+    setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
     balance: string;
     setBalance: React.Dispatch<React.SetStateAction<string>>;
     address: string;
@@ -13,6 +15,8 @@ interface ConnectWalletContextProps {
 }
 
 const initialWalletConnectState: ConnectWalletContextProps = {
+    isLoading: true,
+    setIsLoading: () => { },
     balance: "",
     setBalance: () => { },
     address: "",
@@ -35,11 +39,14 @@ export function ConnectWallet({ children }: { children: React.ReactNode }) {
     const { open, wallet } = ccc.useCcc();
     const [balance, setBalance] = useState<string>("");
     const [address, setAddress] = useState<string>("");
+    const [isLoading, setIsLoading] = useState(false);
     const signer = ccc.useSigner();
 
     useEffect(() => {
-        if (!signer) return;
-
+        if (!signer) {
+            return
+        };
+        setIsLoading(true);
         let isMounted = true;
 
         (async () => {
@@ -52,6 +59,7 @@ export function ConnectWallet({ children }: { children: React.ReactNode }) {
                 if (isMounted) {
                     setAddress(address);
                     setBalance(ccc.fixedPointToString(capacity));
+                    setIsLoading(false)
                 }
             } catch (error) {
                 console.error('Failed to fetch data:', error);
@@ -62,6 +70,8 @@ export function ConnectWallet({ children }: { children: React.ReactNode }) {
     }, [signer]);
 
     const values = {
+        isLoading,
+        setIsLoading,
         balance,
         setBalance,
         address,
@@ -82,12 +92,14 @@ export function ConnectWalletButton({
 }: {
     className?: ClassValue
 }) {
-    const { open, wallet } = useConnectWallet();
+    const { open, wallet, isLoading } = useConnectWallet();
 
     if (wallet) return null;
 
     return (
-        <button className={cn("cursor-pointer rounded-full border border-solid border-transparent transition-colors flex items-center justify-center gap-2 bg-black dark:bg-white text-white dark:text-black hover:opacity-90  text-sm sm:text-base font-bold  px-5 py-3", className)}
+        <button className={cn("cursor-pointer rounded-full border border-solid border-transparent transition-colors flex items-center justify-center gap-2 bg-black dark:bg-white text-white dark:text-black hover:opacity-90  text-sm sm:text-base font-bold  px-5 py-3", className, {
+            "animate-pulse": isLoading
+        })}
             onClick={open}
         >
             Connect Wallet
@@ -100,11 +112,13 @@ export function ConnectWalletInfoContainer({ children, className = ""
     children: React.ReactNode;
     className?: ClassValue
 }) {
-    const { open, wallet } = useConnectWallet();
+    const { open, wallet, isLoading } = useConnectWallet();
 
     if (!wallet) return null;
     return (
-        <button className={cn("cursor-pointer rounded-full border border-solid border-transparent transition-colors bg-black dark:bg-white text-white dark:text-black hover:opacity-90 text-sm sm:text-base font-bold px-5 py-3", className)}
+        <button className={cn("cursor-pointer rounded-full border border-solid border-transparent transition-colors bg-black dark:bg-white text-white dark:text-black hover:opacity-90 text-sm sm:text-base font-bold px-5 py-3", className, {
+            "animate-pulse": isLoading
+        })}
             onClick={open}>
             {children}
         </button>
@@ -138,13 +152,21 @@ export function ConnectWalletInfoBalance({ className = "",
 
     if (!wallet) return null;
 
-    const formatter = new Intl.NumberFormat('en-US', {
-        maximumFractionDigits: decimalPlaces, // Controls decimal places
-        roundingMode: 'trunc',    // Forces it to cut off instead of rounding up
-    });
+    let formatter;
+
+    if (decimalPlaces) {
+        formatter = new Intl.NumberFormat('en-US', {
+            maximumFractionDigits: decimalPlaces, // Controls decimal places
+            roundingMode: 'trunc',    // Forces it to cut off instead of rounding up
+        });
+    } else {
+        formatter = new Intl.NumberFormat('en-US', {
+            maximumFractionDigits: 10
+        });
+    }
 
     return (
-        <h3 className={cn("font-semibold text-sm", className)}>{decimalPlaces !== undefined ? formatter.format(Number(balance)) : balance}
+        <h3 className={cn("font-semibold text-sm", className)}>{formatter.format(Number(balance))}
             {withCurrency &&
                 <span>
                     {" "}

@@ -1,9 +1,8 @@
-# WalletConnect Compound Component
+# ConnectWallet Compound Component
 
 **Modern, flexible wallet connection UI for `@ckb-ccc/connector-react` (Nervos CKB)**
 
-A clean compound component that replaces the old monolithic `ConnectWallet`.  
-Full control over layout, styling, balance formatting, address truncation, and currency display — with zero prop drilling.
+A clean compound component with full control over layout, styling, balance formatting, address truncation, currency display, and loading states — with zero prop drilling.
 
 ---
 
@@ -12,6 +11,7 @@ Full control over layout, styling, balance formatting, address truncation, and c
 - **Compound pattern** – compose exactly the UI you want
 - **No prop drilling** – everything shared via React Context
 - **Optimized** – single `Promise.all` for address + balance
+- **Loading states** – visual feedback during data fetching
 - **Highly customizable**
   - Balance: `decimalPlaces` (0–20), `withCurrency`, truncation
   - Address: custom `frontChars` / `endChars`
@@ -26,31 +26,31 @@ Full control over layout, styling, balance formatting, address truncation, and c
 
 ```tsx
 import {
-  WalletConnect,
-  WalletConnectButton,
-  WalletConnectInfoContainer,
-  WalletConnectInfoImage,
-  WalletConnectInfoBalance,
-  WalletConnectInfoAddress,
-} from './WalletConnect';
+  ConnectWallet,
+  ConnectWalletButton,
+  ConnectWalletInfoContainer,
+  ConnectWalletInfoImage,
+  ConnectWalletInfoBalance,
+  ConnectWalletInfoAddress,
+} from './connect-wallet-enhanced';
 
 function Header() {
   return (
-    <WalletConnect>
+    <ConnectWallet>
       <div className="flex items-center gap-4">
         {/* Disconnected state */}
-        <WalletConnectButton className="px-6 py-2.5" />
+        <ConnectWalletButton className="px-6 py-2.5" />
 
         {/* Connected state */}
-        <WalletConnectInfoContainer className="px-4">
-          <WalletConnectInfoImage />
+        <ConnectWalletInfoContainer className="px-4">
+          <ConnectWalletInfoImage />
           <div className="flex flex-col">
-            <WalletConnectInfoBalance decimalPlaces={4} withCurrency />
-            <WalletConnectInfoAddress frontChars={6} endChars={4} />
+            <ConnectWalletInfoBalance decimalPlaces={4} withCurrency />
+            <ConnectWalletInfoAddress frontChars={6} endChars={4} />
           </div>
-        </WalletConnectInfoContainer>
+        </ConnectWalletInfoContainer>
       </div>
-    </WalletConnect>
+    </ConnectWallet>
   );
 }
 ```

@@ -23,7 +23,7 @@ function App() {
                 <ConnectWalletInfoImage />
 
                 <div className="flex flex-col gap-2">
-                  <ConnectWalletInfoBalance decimalPlaces={7} withCurrency={false} />
+                  <ConnectWalletInfoBalance withCurrency={false} />
                   <ConnectWalletInfoAddress frontChars={5} endChars={12} />
                 </div>
               </ConnectWalletInfoContainer>
