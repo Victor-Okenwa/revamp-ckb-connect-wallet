@@ -1,7 +1,18 @@
 {
   "name": "ckb-connect-wallet-kit",
   "version": "0.1.0",
+  "description": "Compound React wallet connection UI for @ckb-ccc/connector-react (Nervos CKB).",
   "license": "MIT",
+  "author": "Victor-Okenwa",
+  "homepage": "https://github.com/Victor-Okenwa/revamp-ckb-connect-wallet",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Victor-Okenwa/revamp-ckb-connect-wallet.git",
+    "directory": "packages/ckb-connect-wallet-kit"
+  },
+  "bugs": {
+    "url": "https://github.com/Victor-Okenwa/revamp-ckb-connect-wallet/issues"
+  },
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",

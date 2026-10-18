@@ -14,6 +14,7 @@
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^6.0.1",
     "ckb-connect-wallet-kit": "workspace:*",
+    "lucide-react": "^1.59.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "shiki": "^4.5.0",

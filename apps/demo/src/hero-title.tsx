@@ -5,7 +5,7 @@ export function HeroTitle() {
         CKB Connect Wallet
       </span>
       <span className="hero-title-solid" data-text="Component">
-        Component
+        KIT
       </span>
     </h1>
   );
