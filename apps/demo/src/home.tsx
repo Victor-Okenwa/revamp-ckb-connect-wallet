@@ -227,7 +227,7 @@ export function HomePage() {
 
   return (
     <div className="flex flex-col">
-      <section className="relative flex min-h-[calc(100svh-4.75rem)] items-center justify-center overflow-hidden bg-black text-white">
+      <section className="hero-grid relative flex min-h-[calc(100svh-4.75rem)] items-center justify-center overflow-hidden text-white">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute left-1/2 top-1/2 h-[80vmin] w-[80vmin] -translate-x-1/2 -translate-y-1/2 text-white opacity-20"
