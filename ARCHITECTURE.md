@@ -90,6 +90,8 @@ All sub-components read from the shared context automatically. The provider hand
 - **`packages/ckb-connect-wallet-kit/src/connect-wallet.tsx`** – Provider + all sub-components
 - **`packages/ckb-connect-wallet-kit/src/utils.ts`** – `cn` (clsx + tailwind-merge) and `truncateAddress` (internal, not exported)
 - **`packages/ckb-connect-wallet-kit/src/connect-wallet-kit-provider.tsx`** – defaults provider. `defaults` sets classes, decimal places, address truncation, and the button label. It calls `ccc.useCcc()` and must sit under the app’s `ccc.Provider`. It does not mount CCC. `LayoutProvider` is the same component.
+- **`packages/ckb-connect-wallet-kit/src/did-ckb.ts`** – did:ckb lookup. Lists the live DID Metadata Cells locked by the wallet (`findCells` with the did:ckb type script as filter), decodes the molecule `DidCkbData` union and the CBOR document, and reads `services.profile` (`displayName`, `avatar`, `bio`) plus `alsoKnownAs`. Mainnet and testnet code hashes are bundled; CCC's `KnownScript.DidCkb` is used when present.
+- **`packages/ckb-connect-wallet-kit/src/connect-wallet-did.tsx`** – optional `ConnectWalletDid` provider plus `ConnectWalletDidAvatar`, `ConnectWalletDidName`, `ConnectWalletDidId`, and `useConnectWalletDid`. Fetches only when rendered, under `ConnectWallet`.
 
 Consumers install `ckb-connect-wallet-kit` and import from that package name. React, React DOM, and `@ckb-ccc/connector-react` are peer dependencies.
 

@@ -47,6 +47,11 @@ const components: ComponentDoc[] = [
       { name: "defaults.frontChars", type: "number", detail: "Characters kept at the start of the address. Built-in default is 10." },
       { name: "defaults.endChars", type: "number", detail: "Characters kept at the end of the address. Built-in default is 6." },
       { name: "defaults.buttonLabel", type: "React.ReactNode", detail: "Text of ConnectWalletButton. A children prop on that button still wins." },
+      { name: "defaults.didAvatarClassName", type: "ClassValue", detail: "Replaces the default w-6 h-6 rounded-full on the DID avatar." },
+      { name: "defaults.didNameClassName", type: "ClassValue", detail: "Replaces the default font-semibold text-sm on the DID display name." },
+      { name: "defaults.didIdClassName", type: "ClassValue", detail: "Replaces the default text-xs font-normal on the did:ckb identifier." },
+      { name: "defaults.didFrontChars", type: "number", detail: "Characters kept at the start of the did:ckb string. Built-in default is 14." },
+      { name: "defaults.didEndChars", type: "number", detail: "Characters kept at the end of the did:ckb string. Built-in default is 6." },
     ],
   },
   {
@@ -128,6 +133,67 @@ const components: ComponentDoc[] = [
       { name: "className", type: "ClassValue", detail: "Merged after defaults.addressClassName." },
     ],
   },
+  {
+    id: "did",
+    name: "ConnectWalletDid",
+    summary: "Optional. Looks up the did:ckb identities owned by the connected lock and shares the newest one with its children. Renders nothing before connect, and nothing is fetched unless you render it.",
+    example: `<ConnectWalletInfoContainer className="flex items-center gap-2">
+  <ConnectWalletDid>
+    <ConnectWalletDidAvatar />
+    <div className="flex flex-col items-start">
+      <ConnectWalletDidName fallback={<ConnectWalletInfoAddress />} />
+      <ConnectWalletDidId />
+    </div>
+  </ConnectWalletDid>
+</ConnectWalletInfoContainer>`,
+    props: [
+      { name: "children", type: "React.ReactNode", detail: "The DID pieces, or anything that calls useConnectWalletDid()." },
+      { name: "resolve", type: "DidResolver", detail: "Replace the lookup. Receives { client, signer, lock, address } and returns DidProfile[]. The default lists live did:ckb cells locked by the wallet." },
+      { name: "script", type: "DidScript", detail: "Code hash and hash type of a custom did:ckb deployment. The kit ships mainnet and testnet, and uses CCC's KnownScript.DidCkb when the installed CCC has it." },
+      { name: "pick", type: "(dids) => DidProfile | undefined", detail: "Choose which DID to show when the lock owns several. Default is the newest cell." },
+    ],
+  },
+  {
+    id: "did-avatar",
+    name: "ConnectWalletDidAvatar",
+    summary: "The avatar from services.profile.avatar in the DID document. Renders the fallback when the document has no avatar.",
+    example: `<ConnectWalletDidAvatar
+  className="h-8 w-8"
+  fallback={<ConnectWalletInfoImage />}
+/>`,
+    props: [
+      { name: "className", type: "ClassValue", detail: "Merged after defaults.didAvatarClassName. Built-in is w-6 h-6 rounded-full object-cover." },
+      { name: "fallback", type: "React.ReactNode", detail: "Rendered when the resolved DID has no avatar. Nothing is rendered while the lookup runs." },
+    ],
+  },
+  {
+    id: "did-name",
+    name: "ConnectWalletDidName",
+    summary: "The display name from services.profile.displayName. Renders the fallback when the document has no name.",
+    example: `<ConnectWalletDidName
+  fallback={<ConnectWalletInfoAddress frontChars={6} endChars={4} />}
+/>`,
+    props: [
+      { name: "className", type: "ClassValue", detail: "Merged after defaults.didNameClassName. Built-in is font-semibold text-sm." },
+      { name: "fallback", type: "React.ReactNode", detail: "Rendered when the resolved DID has no display name." },
+    ],
+  },
+  {
+    id: "did-id",
+    name: "ConnectWalletDidId",
+    summary: "The did:ckb identifier, shortened with an ellipsis. The full value is in the title attribute.",
+    example: `<ConnectWalletDidId
+  frontChars={14}
+  endChars={6}
+  fallback={<ConnectWalletInfoAddress />}
+/>`,
+    props: [
+      { name: "frontChars", type: "number", detail: "Overrides defaults.didFrontChars. Built-in default is 14, which keeps did:ckb: plus six characters." },
+      { name: "endChars", type: "number", detail: "Overrides defaults.didEndChars. Built-in default is 6." },
+      { name: "className", type: "ClassValue", detail: "Merged after defaults.didIdClassName." },
+      { name: "fallback", type: "React.ReactNode", detail: "Rendered when the lock owns no DID." },
+    ],
+  },
 ];
 
 function toggleCard(id: string, openId: string, setOpenId: (next: string) => void) {
@@ -154,7 +220,7 @@ export function ComponentCards() {
       <div className="flex flex-col gap-2">
         <h2 className="text-3xl font-semibold tracking-tight">The pieces</h2>
         <p className="max-w-2xl text-black/70 dark:text-white/70">
-          Seven components, two across. Open a card for a usage example and every prop.
+          Eleven components, two across. Open a card for a usage example and every prop. The four DID pieces are optional and only fetch when rendered.
           A prop on one piece overrides the matching provider default.
           <code> LayoutProvider</code> is the previous name of the kit provider and is the same component. Both must sit under the app’s <code>ccc.Provider</code>.
         </p>

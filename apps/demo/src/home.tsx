@@ -12,6 +12,8 @@ import { ComponentCards } from "./components-page";
 import { HeroTitle } from "./hero-title";
 import connectWalletSource from "../../../packages/ckb-connect-wallet-kit/src/connect-wallet.tsx?raw";
 import kitProviderSource from "../../../packages/ckb-connect-wallet-kit/src/connect-wallet-kit-provider.tsx?raw";
+import didCkbSource from "../../../packages/ckb-connect-wallet-kit/src/did-ckb.ts?raw";
+import connectWalletDidSource from "../../../packages/ckb-connect-wallet-kit/src/connect-wallet-did.tsx?raw";
 import utilsSource from "../../../packages/ckb-connect-wallet-kit/src/utils.ts?raw";
 
 type InstallPath = "package" | "copy";
@@ -217,6 +219,18 @@ const sourceFiles = [
     note: "Must sit under the app's ccc.Provider. Use defaults for the shared look. This file does not mount CCC.",
     source: kitProviderSource,
   },
+  {
+    id: "did-ckb.ts",
+    path: "src/components/did-ckb.ts",
+    note: "Optional. Finds and decodes the did:ckb cells owned by a lock. Only needed with connect-wallet-did.tsx.",
+    source: didCkbSource,
+  },
+  {
+    id: "connect-wallet-did.tsx",
+    path: "src/components/connect-wallet-did.tsx",
+    note: "Optional. The DID pieces. Imports ./connect-wallet, ./did-ckb, and ./utils, so it stays in the same folder.",
+    source: connectWalletDidSource,
+  },
 ] as const;
 
 export function HomePage() {
@@ -317,7 +331,7 @@ export function HomePage() {
         ) : (
           <div className="flex flex-col gap-4">
             <p className="text-sm leading-6 text-black/70 dark:text-white/70">
-              Copy the three files below into your app. <code>connect-wallet.tsx</code> and <code>utils.ts</code> have to stay in the same folder. Tailwind will see the classes because the files are in your project, so you do not add an <code>@source</code> rule.
+              Copy the files below into your app. The first three are required, the two DID files are optional. All of them have to stay in the same folder. Tailwind will see the classes because the files are in your project, so you do not add an <code>@source</code> rule.
             </p>
             <CodeBlock label="Install the dependencies the files import" lang="bash" code={copyInstall[manager]} />
             <div className="flex flex-wrap gap-2">

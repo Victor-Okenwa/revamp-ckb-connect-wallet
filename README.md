@@ -17,6 +17,7 @@ A clean compound component with full control over layout, styling, balance forma
   - Address: custom `frontChars` / `endChars`
   - Full Tailwind class overrides via `className`
 - **Auto hide/show** – button vs. connected info
+- **did:ckb profile** – optional avatar, display name, and identifier for the connected lock
 - **Dark mode ready** + modern default styles
 - **Type-safe** – TypeScript everywhere
 
@@ -48,6 +49,11 @@ Copy these files into your app. `connect-wallet.tsx` and `utils.ts` must stay in
 - `packages/ckb-connect-wallet-kit/src/connect-wallet.tsx` → `src/components/connect-wallet.tsx`
 - `packages/ckb-connect-wallet-kit/src/utils.ts` → `src/components/utils.ts`
 - `packages/ckb-connect-wallet-kit/src/connect-wallet-kit-provider.tsx` → `src/components/connect-wallet-kit-provider.tsx`
+
+Optional, only if you want the did:ckb pieces (same folder):
+
+- `packages/ckb-connect-wallet-kit/src/did-ckb.ts` → `src/components/did-ckb.ts`
+- `packages/ckb-connect-wallet-kit/src/connect-wallet-did.tsx` → `src/components/connect-wallet-did.tsx`
 
 ```bash
 npm install @ckb-ccc/connector-react clsx tailwind-merge react react-dom
@@ -185,6 +191,47 @@ export function App() {
   );
 }
 ```
+
+### did:ckb profile
+
+`ConnectWalletDid` is optional. When rendered, it lists the live [did:ckb](https://github.com/web5fans/web5-wips/blob/master/01.md) cells owned by the connected lock and shares the newest one with its children. Nothing is fetched unless you render it, and it renders nothing before a wallet connects.
+
+The display name and avatar come from `services.profile` in the DID document (`displayName`, `avatar`, `bio`), the convention used by did:ckb dashboards. Each piece takes a `fallback` for wallets with no DID or no profile.
+
+```tsx
+import {
+  ConnectWallet,
+  ConnectWalletButton,
+  ConnectWalletDid,
+  ConnectWalletDidAvatar,
+  ConnectWalletDidId,
+  ConnectWalletDidName,
+  ConnectWalletInfoAddress,
+  ConnectWalletInfoContainer,
+  ConnectWalletInfoImage,
+} from "ckb-connect-wallet-kit";
+
+<ConnectWallet>
+  <ConnectWalletButton />
+  <ConnectWalletInfoContainer className="flex items-center gap-2">
+    <ConnectWalletDid>
+      <ConnectWalletDidAvatar fallback={<ConnectWalletInfoImage />} />
+      <div className="flex flex-col items-start">
+        <ConnectWalletDidName fallback={<ConnectWalletInfoAddress frontChars={6} endChars={4} />} />
+        <ConnectWalletDidId />
+      </div>
+    </ConnectWalletDid>
+  </ConnectWalletInfoContainer>
+</ConnectWallet>
+```
+
+- `resolve` replaces the lookup: `({ client, signer, lock, address }) => Promise<DidProfile[]>`.
+- `script` points at a custom did:ckb deployment. Mainnet and testnet are built in, and CCC's `KnownScript.DidCkb` is used when the installed CCC has it.
+- `pick` chooses the DID when the lock owns several. Default is the newest cell.
+- `useConnectWalletDid()` returns `{ dids, did, isLoading, error, select }` for a custom display.
+- Provider defaults: `didAvatarClassName`, `didNameClassName`, `didIdClassName`, `didFrontChars`, `didEndChars`.
+
+Creating or editing a DID is a signed CKB transaction and is outside this kit.
 
 ## Development
 

@@ -3,14 +3,38 @@ import { ccc } from "@ckb-ccc/connector-react";
 import {
   ConnectWallet,
   ConnectWalletButton,
+  ConnectWalletDid,
+  ConnectWalletDidAvatar,
+  ConnectWalletDidId,
+  ConnectWalletDidName,
   ConnectWalletInfoAddress,
   ConnectWalletInfoBalance,
   ConnectWalletInfoContainer,
   ConnectWalletInfoImage,
+  useConnectWalletDid,
 } from "ckb-connect-wallet-kit";
 import { CodeBlock } from "./code-block";
 
 type DecimalPlaces = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20;
+
+function DidStatus() {
+  const { dids, did, isLoading, error } = useConnectWalletDid();
+  if (isLoading) return <p className="text-xs text-black/60 dark:text-white/60">Looking up did:ckb cells for this lock…</p>;
+  if (error) return <p className="text-xs text-red-600 dark:text-red-400">DID lookup failed. Check the console.</p>;
+  if (dids.length === 0) {
+    return (
+      <p className="max-w-xl text-xs leading-5 text-black/60 dark:text-white/60">
+        This lock owns no did:ckb cell, so the DID pieces render their fallbacks. Create one with a did:ckb dashboard and reconnect.
+      </p>
+    );
+  }
+  return (
+    <p className="max-w-xl text-xs leading-5 text-black/60 dark:text-white/60">
+      {dids.length} DID{dids.length === 1 ? "" : "s"} on this lock. Showing <code>{did?.did}</code>
+      {did?.displayName ? ` (${did.displayName})` : ", which has no profile name"}.
+    </p>
+  );
+}
 
 export function DemoPage() {
   const { wallet } = ccc.useCcc();
@@ -19,26 +43,44 @@ export function DemoPage() {
   const [frontChars, setFrontChars] = useState(6);
   const [endChars, setEndChars] = useState(4);
   const [stacked, setStacked] = useState(true);
+  const [showDid, setShowDid] = useState(false);
+
+  const containerClass = stacked ? "flex items-center gap-3" : "flex items-center gap-2";
+  const textClass = stacked ? "flex flex-col items-start" : "flex items-baseline gap-2";
 
   const snippet = useMemo(() => {
-    const container = stacked
-      ? "flex items-center gap-3"
-      : "flex items-center gap-2";
     const balanceProps = [
       `decimalPlaces={${decimalPlaces}}`,
       withCurrency ? "withCurrency" : "withCurrency={false}",
     ].join(" ");
+    const addressProps = `frontChars={${frontChars}} endChars={${endChars}}`;
+
+    if (showDid) {
+      return `<ConnectWallet>
+  <ConnectWalletButton />
+  <ConnectWalletInfoContainer className="${containerClass}">
+    <ConnectWalletDid>
+      <ConnectWalletDidAvatar fallback={<ConnectWalletInfoImage />} />
+      <div className="${textClass}">
+        <ConnectWalletDidName fallback={<ConnectWalletInfoBalance ${balanceProps} />} />
+        <ConnectWalletDidId fallback={<ConnectWalletInfoAddress ${addressProps} />} />
+      </div>
+    </ConnectWalletDid>
+  </ConnectWalletInfoContainer>
+</ConnectWallet>`;
+    }
+
     return `<ConnectWallet>
   <ConnectWalletButton />
-  <ConnectWalletInfoContainer className="${container}">
+  <ConnectWalletInfoContainer className="${containerClass}">
     <ConnectWalletInfoImage />
-    <div className="${stacked ? "flex flex-col items-start" : "flex items-baseline gap-2"}">
+    <div className="${textClass}">
       <ConnectWalletInfoBalance ${balanceProps} />
-      <ConnectWalletInfoAddress frontChars={${frontChars}} endChars={${endChars}} />
+      <ConnectWalletInfoAddress ${addressProps} />
     </div>
   </ConnectWalletInfoContainer>
 </ConnectWallet>`;
-  }, [decimalPlaces, endChars, frontChars, stacked, withCurrency]);
+  }, [containerClass, decimalPlaces, endChars, frontChars, showDid, textClass, withCurrency]);
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-8 px-5 py-16">
@@ -101,17 +143,34 @@ export function DemoPage() {
                 <input type="checkbox" checked={stacked} onChange={(event) => setStacked(event.target.checked)} />
                 Stack balance over address
               </label>
+              <label className="flex items-center gap-2 text-sm">
+                <input type="checkbox" checked={showDid} onChange={(event) => setShowDid(event.target.checked)} />
+                Show did:ckb profile
+              </label>
             </form>
 
             <div className="flex flex-col gap-6">
-              <div className="demo-stage flex min-h-40 items-center justify-center border border-black/15 p-8 dark:border-white/15">
-                <ConnectWalletInfoContainer className={stacked ? "flex items-center gap-3" : "flex items-center gap-2"}>
-                  <ConnectWalletInfoImage />
-                  <div className={stacked ? "flex flex-col items-start" : "flex items-baseline gap-2"}>
-                    <ConnectWalletInfoBalance decimalPlaces={decimalPlaces} withCurrency={withCurrency} />
-                    <ConnectWalletInfoAddress frontChars={frontChars} endChars={endChars} />
-                  </div>
-                </ConnectWalletInfoContainer>
+              <div className="demo-stage flex min-h-40 flex-col items-center justify-center gap-4 border border-black/15 p-8 dark:border-white/15">
+                {showDid ? (
+                  <ConnectWalletDid>
+                    <ConnectWalletInfoContainer className={containerClass}>
+                      <ConnectWalletDidAvatar fallback={<ConnectWalletInfoImage />} />
+                      <div className={textClass}>
+                        <ConnectWalletDidName fallback={<ConnectWalletInfoBalance decimalPlaces={decimalPlaces} withCurrency={withCurrency} />} />
+                        <ConnectWalletDidId fallback={<ConnectWalletInfoAddress frontChars={frontChars} endChars={endChars} />} />
+                      </div>
+                    </ConnectWalletInfoContainer>
+                    <DidStatus />
+                  </ConnectWalletDid>
+                ) : (
+                  <ConnectWalletInfoContainer className={containerClass}>
+                    <ConnectWalletInfoImage />
+                    <div className={textClass}>
+                      <ConnectWalletInfoBalance decimalPlaces={decimalPlaces} withCurrency={withCurrency} />
+                      <ConnectWalletInfoAddress frontChars={frontChars} endChars={endChars} />
+                    </div>
+                  </ConnectWalletInfoContainer>
+                )}
               </div>
               <CodeBlock label="The tree these controls produce" lang="tsx" code={snippet} />
             </div>

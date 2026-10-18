@@ -16,7 +16,8 @@ Compose the connect button, wallet icon, balance, and address yourself. Shared s
 - **Balance control** — `decimalPlaces` (`0`–`20`) truncates, does not round; optional `CKB` suffix
 - **Address control** — keep `frontChars` and `endChars`, the middle becomes `...`
 - **Auto hide / show** — `ConnectWalletButton` is gone after connect; the info pieces render only then
-- **TypeScript** — exported types for defaults and `DecimalPlaces`
+- **did:ckb profile** — optional avatar, display name, and identifier for the connected lock
+- **TypeScript** — exported types for defaults, `DecimalPlaces`, and `DidProfile`
 
 ## Install
 
@@ -215,6 +216,11 @@ Sit this under the app’s `ccc.Provider`. It only stores shared defaults. It ca
 | `frontChars` | `number` | `10` | Characters kept at the start of the truncated address. |
 | `endChars` | `number` | `6` | Characters kept at the end of the truncated address. |
 | `buttonLabel` | `React.ReactNode` | `"Connect Wallet"` | Label of `ConnectWalletButton`. A `children` prop on that button still wins. |
+| `didAvatarClassName` | `ClassValue` | `w-6 h-6 rounded-full object-cover` | Replaces the default size and shape of `ConnectWalletDidAvatar`. |
+| `didNameClassName` | `ClassValue` | `font-semibold text-sm` | Replaces the default typography of `ConnectWalletDidName`. |
+| `didIdClassName` | `ClassValue` | `text-xs font-normal` | Replaces the default typography of `ConnectWalletDidId`. |
+| `didFrontChars` | `number` | `14` | Characters kept at the start of the truncated `did:ckb:` string. |
+| `didEndChars` | `number` | `6` | Characters kept at the end of the truncated `did:ckb:` string. |
 
 ### `LayoutProvider`
 
@@ -279,6 +285,67 @@ Shows the recommended address. If the address is longer than `frontChars + endCh
 | `endChars` | `number` | `defaults.endChars`, then `6` | Characters kept at the end. |
 | `className` | `ClassValue` | — | Merged after `defaults.addressClassName`. |
 
+### `ConnectWalletDid`
+
+Optional. Place it inside `ConnectWallet`. It lists the live [did:ckb](https://github.com/web5fans/web5-wips/blob/master/01.md) cells owned by the connected lock and shares the newest one with its children. Nothing is fetched unless you render it, and it renders nothing before a wallet connects.
+
+The display name and avatar come from `services.profile` in the DID document (`displayName`, `avatar`, `bio`), the convention used by did:ckb dashboards. A DID without a profile still has an identifier.
+
+```tsx
+<ConnectWallet>
+  <ConnectWalletButton />
+  <ConnectWalletInfoContainer className="flex items-center gap-2">
+    <ConnectWalletDid>
+      <ConnectWalletDidAvatar fallback={<ConnectWalletInfoImage />} />
+      <div className="flex flex-col items-start">
+        <ConnectWalletDidName fallback={<ConnectWalletInfoAddress frontChars={6} endChars={4} />} />
+        <ConnectWalletDidId />
+      </div>
+    </ConnectWalletDid>
+  </ConnectWalletInfoContainer>
+</ConnectWallet>
+```
+
+| Prop | Type | Default | What it does |
+| --- | --- | --- | --- |
+| `children` | `React.ReactNode` | — | The DID pieces, or anything that calls `useConnectWalletDid()`. |
+| `resolve` | `DidResolver` | lists live did:ckb cells locked by the wallet | Replace the lookup. Receives `{ client, signer, lock, address }` and returns `DidProfile[]`. |
+| `script` | `DidScript` | mainnet or testnet by client prefix | Code hash and hash type of a custom did:ckb deployment. CCC's `KnownScript.DidCkb` is used when the installed CCC has it. |
+| `pick` | `(dids: DidProfile[]) => DidProfile \| undefined` | newest cell | Choose which DID to show when the lock owns several. |
+
+`useConnectWalletDid()` returns `{ dids, did, isLoading, error, select }` for a custom display. `listDidsByLock`, `decodeDidCell`, `extractDidProfile`, `argsToDid`, and `DID_CKB_SCRIPTS` are exported for use outside React.
+
+Creating or editing a DID is a signed CKB transaction and is outside this kit.
+
+### `ConnectWalletDidAvatar`
+
+The avatar from `services.profile.avatar`. Renders nothing while the lookup runs, and the `fallback` when the DID has no avatar.
+
+| Prop | Type | Default | What it does |
+| --- | --- | --- | --- |
+| `className` | `ClassValue` | — | Merged after `defaults.didAvatarClassName`. Built-in is `w-6 h-6 rounded-full object-cover`. |
+| `fallback` | `React.ReactNode` | `null` | Rendered when there is no avatar. |
+
+### `ConnectWalletDidName`
+
+The display name from `services.profile.displayName`. Renders the `fallback` when the DID has no name.
+
+| Prop | Type | Default | What it does |
+| --- | --- | --- | --- |
+| `className` | `ClassValue` | — | Merged after `defaults.didNameClassName`. Built-in is `font-semibold text-sm`. |
+| `fallback` | `React.ReactNode` | `null` | Rendered when there is no display name. |
+
+### `ConnectWalletDidId`
+
+The `did:ckb:` identifier, shortened with `...`. The full value is in the `title` attribute.
+
+| Prop | Type | Default | What it does |
+| --- | --- | --- | --- |
+| `frontChars` | `number` | `defaults.didFrontChars`, then `14` | Characters kept at the start. |
+| `endChars` | `number` | `defaults.didEndChars`, then `6` | Characters kept at the end. |
+| `className` | `ClassValue` | — | Merged after `defaults.didIdClassName`. |
+| `fallback` | `React.ReactNode` | `null` | Rendered when the lock owns no DID. |
+
 ## Copy the source instead
 
 Copy these files into the same folder in your app:
@@ -286,6 +353,7 @@ Copy these files into the same folder in your app:
 - `src/connect-wallet.tsx`
 - `src/utils.ts`
 - `src/connect-wallet-kit-provider.tsx`
+- `src/did-ckb.ts` and `src/connect-wallet-did.tsx` (only if you want the DID pieces)
 
 `connect-wallet.tsx` imports `./utils`, and the provider imports `./connect-wallet`, so they have to stay together. Mount your own `ccc.Provider` around the kit provider. The copied provider does not mount CCC.
 

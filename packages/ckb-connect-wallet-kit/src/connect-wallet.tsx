@@ -16,11 +16,16 @@ export type ConnectWalletDefaults = {
     frontChars?: number;
     endChars?: number;
     buttonLabel?: React.ReactNode;
+    didAvatarClassName?: ClassValue;
+    didNameClassName?: ClassValue;
+    didIdClassName?: ClassValue;
+    didFrontChars?: number;
+    didEndChars?: number;
 };
 
 export const ConnectWalletDefaultsContext = createContext<ConnectWalletDefaults>({});
 
-function useConnectWalletDefaults() {
+export function useConnectWalletDefaults() {
     return useContext(ConnectWalletDefaultsContext);
 }
 
@@ -56,7 +61,7 @@ const initialWalletConnectState: ConnectWalletContextProps = {
 //  Context for store
 const ConnectWalletContext = createContext<ConnectWalletContextProps>(initialWalletConnectState);
 
-function useConnectWallet() {
+export function useConnectWallet() {
     const context = useContext(ConnectWalletContext);
     if (!context) throw new Error("Wallet connect components must be used within <WalletConnect />");
     return context;
