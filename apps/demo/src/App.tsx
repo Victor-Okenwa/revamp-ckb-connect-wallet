@@ -1,17 +1,28 @@
 import { useEffect, useState } from "react";
-import { ComponentsPage } from "./components-page";
 import { DemoPage } from "./demo-page";
 import { HeaderWallet, HomePage } from "./home";
 
 const NPM_URL = "https://www.npmjs.com/package/ckb-connect-wallet-kit";
 const REPO_URL = "https://github.com/Victor-Okenwa/revamp-ckb-connect-wallet";
 
-type Route = "home" | "components" | "demo";
+type Route = "home" | "demo";
 
 function readRoute(): Route {
-  if (window.location.hash === "#/components") return "components";
   if (window.location.hash === "#/demo") return "demo";
   return "home";
+}
+
+function scrollToHash() {
+  const hash = window.location.hash;
+  if (hash === "" || hash === "#/" || hash === "#/demo") {
+    window.scrollTo(0, 0);
+    return;
+  }
+  const id = hash === "#/components" ? "components" : hash.startsWith("#/") ? "" : hash.slice(1);
+  if (!id) return;
+  window.requestAnimationFrame(() => {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+  });
 }
 
 function App() {
@@ -19,12 +30,21 @@ function App() {
 
   useEffect(() => {
     const onHash = () => {
+      if (window.location.hash === "#/components") {
+        window.location.hash = "#components";
+        return;
+      }
       setRoute(readRoute());
-      window.scrollTo(0, 0);
+      scrollToHash();
     };
     window.addEventListener("hashchange", onHash);
+    scrollToHash();
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
+
+  useEffect(() => {
+    if (route === "home") scrollToHash();
+  }, [route]);
 
   return (
     <div className="min-h-screen">
@@ -39,7 +59,7 @@ function App() {
           </a>
           <nav className="col-span-2 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm sm:col-span-1 sm:col-start-2 sm:justify-self-center">
             <a href="#/" className={route === "home" ? "underline" : "hover:underline"}>Home</a>
-            <a href="#/components" className={route === "components" ? "underline" : "hover:underline"}>Components</a>
+            <a href="#components" className="hover:underline">Components</a>
             <a href="#/demo" className={route === "demo" ? "underline" : "hover:underline"}>Demo</a>
             <a href={NPM_URL} target="_blank" rel="noopener noreferrer" className="hover:underline">npm</a>
             <a href={REPO_URL} target="_blank" rel="noopener noreferrer" className="hover:underline">GitHub</a>
@@ -52,7 +72,6 @@ function App() {
 
       <main>
         {route === "home" && <HomePage />}
-        {route === "components" && <ComponentsPage />}
         {route === "demo" && <DemoPage />}
       </main>
 

@@ -57,7 +57,79 @@ No Tailwind `@source` rule is required for this path. The classes live in your o
 
 ## Quick Start
 
-`ConnectWalletKitProvider` sits at the root. `defaults` sets the shared button classes, balance formatting, and address truncation. A prop on one piece overrides that default. Pass `network` to also mount the CCC provider. `LayoutProvider` is the previous name and still defaults `network` to `"testnet"`. The import below is the package path. If you copied the source, import the provider from `./components/connect-wallet-kit-provider`.
+`ConnectWallet` and its children must sit under a CCC provider. Use CCC’s `ccc.Provider` yourself, or pass `network` to `ConnectWalletKitProvider` so the kit mounts that provider for you. Leave off `className`, formatting props, and `defaults` to use the built-in styles.
+
+The imports below are the package path. If you copied the source, import the provider from `./components/connect-wallet-kit-provider` and the pieces from `./components/connect-wallet`.
+
+### CCC provider, no styling
+
+```tsx
+import { ccc } from "@ckb-ccc/connector-react";
+import {
+  ConnectWallet,
+  ConnectWalletButton,
+  ConnectWalletInfoContainer,
+  ConnectWalletInfoImage,
+  ConnectWalletInfoBalance,
+  ConnectWalletInfoAddress,
+} from "ckb-connect-wallet-kit";
+
+export function App() {
+  return (
+    <ccc.Provider
+      defaultClient={new ccc.ClientPublicTestnet()}
+      clientOptions={[
+        { name: "CKB Testnet", client: new ccc.ClientPublicTestnet() },
+        { name: "CKB Mainnet", client: new ccc.ClientPublicMainnet() },
+      ]}
+    >
+      <ConnectWallet>
+        <ConnectWalletButton />
+        <ConnectWalletInfoContainer>
+          <ConnectWalletInfoImage />
+          <ConnectWalletInfoBalance />
+          <ConnectWalletInfoAddress />
+        </ConnectWalletInfoContainer>
+      </ConnectWallet>
+    </ccc.Provider>
+  );
+}
+```
+
+### Kit provider, no defaults
+
+```tsx
+import {
+  ConnectWalletKitProvider,
+  ConnectWallet,
+  ConnectWalletButton,
+  ConnectWalletInfoContainer,
+  ConnectWalletInfoImage,
+  ConnectWalletInfoBalance,
+  ConnectWalletInfoAddress,
+} from "ckb-connect-wallet-kit";
+
+export function App() {
+  return (
+    <ConnectWalletKitProvider network="testnet">
+      <ConnectWallet>
+        <ConnectWalletButton>Connect</ConnectWalletButton>
+        <ConnectWalletInfoContainer>
+          <ConnectWalletInfoImage />
+          <ConnectWalletInfoBalance decimalPlaces={4} withCurrency />
+          <ConnectWalletInfoAddress frontChars={6} endChars={4} />
+        </ConnectWalletInfoContainer>
+      </ConnectWallet>
+    </ConnectWalletKitProvider>
+  );
+}
+```
+
+If the app already renders `ccc.Provider`, drop `network` and keep the same children.
+
+### Kit provider, with defaults
+
+A prop on one piece overrides the matching default. `LayoutProvider` is the previous name of the provider and still defaults `network` to `"testnet"`.
 
 ```tsx
 import {
@@ -86,6 +158,21 @@ function AppRoot({ children }: { children: React.ReactNode }) {
     >
       {children}
     </ConnectWalletKitProvider>
+  );
+}
+
+function HeaderWallet() {
+  return (
+    <ConnectWallet>
+      <ConnectWalletButton />
+      <ConnectWalletInfoContainer className="flex items-center gap-2">
+        <ConnectWalletInfoImage />
+        <div className="flex flex-col items-start">
+          <ConnectWalletInfoBalance />
+          <ConnectWalletInfoAddress />
+        </div>
+      </ConnectWalletInfoContainer>
+    </ConnectWallet>
   );
 }
 ```

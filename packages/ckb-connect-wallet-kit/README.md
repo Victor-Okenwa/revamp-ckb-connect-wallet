@@ -35,7 +35,85 @@ The components ship Tailwind class names, not a prebuilt stylesheet. Tailwind v4
 
 ## Quick start
 
-`ConnectWalletKitProvider` goes at the app root. Pass `network` to also mount CCC’s provider. Omit `network` when the app already renders `ccc.Provider`.
+`ConnectWallet` and its children must sit under a CCC provider. Use CCC’s `ccc.Provider` yourself, or pass `network` to `ConnectWalletKitProvider` so the kit mounts that provider for you.
+
+The pieces have built-in styles. Leave off `className`, formatting props, and `defaults` to use them as-is.
+
+### CCC provider, no styling
+
+This is the normal CCC setup. The kit only composes the button and connected info. No `ConnectWalletKitProvider`, no `defaults`, no `className`.
+
+```tsx
+import { ccc } from "@ckb-ccc/connector-react";
+import {
+  ConnectWallet,
+  ConnectWalletButton,
+  ConnectWalletInfoContainer,
+  ConnectWalletInfoImage,
+  ConnectWalletInfoBalance,
+  ConnectWalletInfoAddress,
+} from "ckb-connect-wallet-kit";
+
+export function App() {
+  return (
+    <ccc.Provider
+      defaultClient={new ccc.ClientPublicTestnet()}
+      clientOptions={[
+        { name: "CKB Testnet", client: new ccc.ClientPublicTestnet() },
+        { name: "CKB Mainnet", client: new ccc.ClientPublicMainnet() },
+      ]}
+    >
+      <ConnectWallet>
+        <ConnectWalletButton />
+        <ConnectWalletInfoContainer>
+          <ConnectWalletInfoImage />
+          <ConnectWalletInfoBalance />
+          <ConnectWalletInfoAddress />
+        </ConnectWalletInfoContainer>
+      </ConnectWallet>
+    </ccc.Provider>
+  );
+}
+```
+
+The button uses the built-in pill. After connect it hides, and the container shows the icon, the full formatted balance with `CKB`, and an address truncated to 10 + 6 characters.
+
+### Kit provider, no defaults
+
+`network` mounts CCC for you. Omit `defaults` so every composition uses the built-in look. Style or format a single piece with props when you need to.
+
+```tsx
+import {
+  ConnectWalletKitProvider,
+  ConnectWallet,
+  ConnectWalletButton,
+  ConnectWalletInfoContainer,
+  ConnectWalletInfoImage,
+  ConnectWalletInfoBalance,
+  ConnectWalletInfoAddress,
+} from "ckb-connect-wallet-kit";
+
+export function App() {
+  return (
+    <ConnectWalletKitProvider network="testnet">
+      <ConnectWallet>
+        <ConnectWalletButton>Connect</ConnectWalletButton>
+        <ConnectWalletInfoContainer>
+          <ConnectWalletInfoImage />
+          <ConnectWalletInfoBalance decimalPlaces={4} withCurrency />
+          <ConnectWalletInfoAddress frontChars={6} endChars={4} />
+        </ConnectWalletInfoContainer>
+      </ConnectWallet>
+    </ConnectWalletKitProvider>
+  );
+}
+```
+
+If the app already renders `ccc.Provider`, drop `network` and keep the same children.
+
+### Kit provider, with defaults
+
+Set look and formatting once. A prop on one piece still wins over the matching default.
 
 ```tsx
 import {
@@ -74,8 +152,8 @@ export function HeaderWallet() {
       <ConnectWalletInfoContainer className="flex items-center gap-2">
         <ConnectWalletInfoImage />
         <div className="flex flex-col items-start">
-          <ConnectWalletInfoBalance decimalPlaces={4} withCurrency />
-          <ConnectWalletInfoAddress frontChars={6} endChars={4} />
+          <ConnectWalletInfoBalance />
+          <ConnectWalletInfoAddress />
         </div>
       </ConnectWalletInfoContainer>
     </ConnectWallet>
@@ -83,7 +161,7 @@ export function HeaderWallet() {
 }
 ```
 
-A prop on one piece wins over the matching `defaults` value. `className` is merged after the provider class, so conflicting Tailwind utilities on that instance win.
+`className` is merged after the provider class, so conflicting Tailwind utilities on that instance win.
 
 `LayoutProvider` is the previous name of the provider. It accepts the same props and still defaults `network` to `"testnet"`.
 

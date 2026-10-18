@@ -8,6 +8,7 @@ import {
   ConnectWalletInfoImage,
 } from "ckb-connect-wallet-kit";
 import { CodeBlock } from "./code-block";
+import { ComponentCards } from "./components-page";
 import { HeroTitle } from "./hero-title";
 import connectWalletSource from "../../../packages/ckb-connect-wallet-kit/src/connect-wallet.tsx?raw";
 import kitProviderSource from "../../../packages/ckb-connect-wallet-kit/src/connect-wallet-kit-provider.tsx?raw";
@@ -136,7 +137,8 @@ export function HomePage() {
       </section>
 
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-20 px-5 py-16">
-      <section id="install" className="flex flex-col gap-6">
+      <ComponentCards />
+      <section id="install" className="scroll-mt-24 flex flex-col gap-6">
         <div className="flex flex-col gap-2">
           <h2 className="text-3xl font-semibold tracking-tight">Two ways to add it</h2>
           <p className="max-w-2xl text-black/70 dark:text-white/70">
