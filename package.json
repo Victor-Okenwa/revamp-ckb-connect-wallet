@@ -1,6 +1,5 @@
 {
   "name": "ckb-wallet-structure",
-  "private": true,
   "workspaces": [
     "packages/*",
     "apps/*"

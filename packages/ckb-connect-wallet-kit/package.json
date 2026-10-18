@@ -1,6 +1,6 @@
 {
   "name": "ckb-connect-wallet-kit",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Compound React wallet connection UI for @ckb-ccc/connector-react (Nervos CKB).",
   "license": "MIT",
   "author": "Victor-Okenwa",

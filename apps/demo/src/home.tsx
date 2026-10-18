@@ -238,7 +238,7 @@ export function HomePage() {
         <div className="relative z-10 flex max-w-4xl flex-col items-center px-5 py-16 text-center">
           <p className="mb-8 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs tracking-wide text-white/80">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-            v0.1.0 - drop-in React component
+            v0.1.1 - drop-in React component
           </p>
           <HeroTitle />
           <p className="mt-6 max-w-xl text-base leading-7 text-white/70 sm:text-lg">
