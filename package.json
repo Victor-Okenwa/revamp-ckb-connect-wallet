@@ -1,0 +1,12 @@
+{
+  "name": "ckb-wallet-structure",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "bun run --filter ckb-connect-wallet-kit build && bun run --parallel dev",
+    "build": "bun run --filter ckb-connect-wallet-kit build && bun run --filter ckb-connect-wallet-demo build"
+  }
+}
