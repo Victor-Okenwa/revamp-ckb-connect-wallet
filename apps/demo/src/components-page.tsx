@@ -140,7 +140,7 @@ function toggleCard(id: string, openId: string, setOpenId: (next: string) => voi
   try {
     document.startViewTransition(() => {
       flushSync(apply);
-    });
+    }).finished.catch(() => { });
   } catch {
     apply();
   }
@@ -168,7 +168,7 @@ export function ComponentCards() {
             <article
               key={component.id}
               data-open={open}
-              className="component-card"
+              className="component-card h-full"
               style={{ viewTransitionName: `card-${component.id}` }}
             >
               <h3>
@@ -181,13 +181,10 @@ export function ComponentCards() {
                 >
                   <span className="flex items-start justify-between gap-4">
                     <span className="font-mono text-base font-semibold leading-6 sm:text-lg">{component.name}</span>
-                    <ChevronDown
-                      aria-hidden
-                      className={`mt-0.5 h-5 w-5 shrink-0 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
-                    />
+                    <ChevronDown aria-hidden className="component-chevron mt-0.5 h-5 w-5 shrink-0" />
                   </span>
                   <span className="text-sm font-normal leading-6 text-black/70 dark:text-white/70">{component.summary}</span>
-                  <span className="text-xs font-medium uppercase tracking-[0.14em] text-black/45 dark:text-white/45">
+                  <span className="text-xs font-medium uppercase tracking-[0.14em] text-black/45 dark:text-black/45 w-fit bg-white/90 rounded-md p-2">
                     {component.props.length} {component.props.length === 1 ? "prop" : "props"}
                   </span>
                 </button>
@@ -209,8 +206,11 @@ export function ComponentCards() {
                     <div className="flex flex-col gap-2">
                       <p className="text-xs font-semibold uppercase tracking-[0.16em] text-black/50 dark:text-white/50">Props</p>
                       <div className="grid gap-3 sm:grid-cols-2">
-                        {component.props.map((prop) => (
-                          <div key={prop.name} className="flex flex-col gap-2 rounded-xl border border-black/10 bg-black/[0.03] p-4 dark:border-white/10 dark:bg-white/[0.04]">
+                        {component.props.map((prop, index) => (
+                          <div
+                            key={prop.name}
+                            className={`flex flex-col gap-2 rounded-xl border border-black/10 bg-black/[0.03] p-4 dark:border-white/10 dark:bg-white/[0.06] ${component.props.length % 2 === 1 && index === component.props.length - 1 ? "sm:col-span-2" : ""}`}
+                          >
                             <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
                               <code className="text-sm font-semibold">{prop.name}</code>
                               <span className="font-mono text-xs text-black/50 dark:text-white/50">{prop.type}</span>

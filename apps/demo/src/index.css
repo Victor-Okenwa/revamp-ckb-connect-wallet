@@ -52,16 +52,23 @@ code {
 
 .component-card {
   overflow: hidden;
-  border: 1px solid color-mix(in srgb, var(--foreground) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--foreground) 24%, transparent);
   border-radius: 1.25rem;
-  background: color-mix(in srgb, var(--foreground) 4%, var(--background));
-  box-shadow: 0 1px 0 color-mix(in srgb, var(--foreground) 6%, transparent);
+  background: color-mix(in srgb, var(--foreground) 8%, var(--background));
 }
 
 .component-card[data-open="true"] {
   grid-column: 1 / -1;
-  border-color: color-mix(in srgb, var(--foreground) 55%, transparent);
-  background: var(--background);
+  border-color: color-mix(in srgb, var(--foreground) 72%, transparent);
+  background: color-mix(in srgb, var(--foreground) 12%, var(--background));
+}
+
+.component-chevron {
+  transition: transform 0.3s ease;
+}
+
+.component-card[data-open="true"] .component-chevron {
+  transform: rotate(180deg);
 }
 
 .component-card:hover {

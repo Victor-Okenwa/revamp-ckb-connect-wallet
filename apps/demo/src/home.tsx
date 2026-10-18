@@ -70,6 +70,106 @@ export function AppRoot({ children }: { children: React.ReactNode }) {
   );
 }`;
 
+const exampleCccProvider = `import { ccc } from "@ckb-ccc/connector-react";
+import {
+  ConnectWallet,
+  ConnectWalletButton,
+  ConnectWalletInfoContainer,
+  ConnectWalletInfoImage,
+  ConnectWalletInfoBalance,
+  ConnectWalletInfoAddress,
+} from "ckb-connect-wallet-kit";
+
+export function App() {
+  return (
+    <ccc.Provider
+      defaultClient={new ccc.ClientPublicTestnet()}
+      clientOptions={[
+        { name: "CKB Testnet", client: new ccc.ClientPublicTestnet() },
+        { name: "CKB Mainnet", client: new ccc.ClientPublicMainnet() },
+      ]}
+    >
+      <ConnectWallet>
+        <ConnectWalletButton />
+        <ConnectWalletInfoContainer>
+          <ConnectWalletInfoImage />
+          <ConnectWalletInfoBalance />
+          <ConnectWalletInfoAddress />
+        </ConnectWalletInfoContainer>
+      </ConnectWallet>
+    </ccc.Provider>
+  );
+}`;
+
+const exampleKitNoDefaults = `import {
+  ConnectWalletKitProvider,
+  ConnectWallet,
+  ConnectWalletButton,
+  ConnectWalletInfoContainer,
+  ConnectWalletInfoImage,
+  ConnectWalletInfoBalance,
+  ConnectWalletInfoAddress,
+} from "ckb-connect-wallet-kit";
+
+export function App() {
+  return (
+    <ConnectWalletKitProvider network="testnet">
+      <ConnectWallet>
+        <ConnectWalletButton>Connect</ConnectWalletButton>
+        <ConnectWalletInfoContainer>
+          <ConnectWalletInfoImage />
+          <ConnectWalletInfoBalance decimalPlaces={4} withCurrency />
+          <ConnectWalletInfoAddress frontChars={6} endChars={4} />
+        </ConnectWalletInfoContainer>
+      </ConnectWallet>
+    </ConnectWalletKitProvider>
+  );
+}`;
+
+const exampleKitWithDefaults = `import {
+  ConnectWalletKitProvider,
+  ConnectWallet,
+  ConnectWalletButton,
+  ConnectWalletInfoContainer,
+  ConnectWalletInfoImage,
+  ConnectWalletInfoBalance,
+  ConnectWalletInfoAddress,
+} from "ckb-connect-wallet-kit";
+
+export function AppRoot({ children }: { children: React.ReactNode }) {
+  return (
+    <ConnectWalletKitProvider
+      network="testnet"
+      defaults={{
+        buttonClassName: "rounded-md bg-blue-600 text-white dark:bg-blue-600 dark:text-white",
+        infoContainerClassName: "rounded-md bg-blue-600 text-white dark:bg-blue-600 dark:text-white",
+        decimalPlaces: 4,
+        withCurrency: true,
+        frontChars: 6,
+        endChars: 4,
+        buttonLabel: "Connect Wallet",
+      }}
+    >
+      {children}
+    </ConnectWalletKitProvider>
+  );
+}
+
+export function HeaderWallet() {
+  return (
+    <ConnectWallet>
+      <ConnectWalletButton />
+      <ConnectWalletInfoContainer className="flex items-center gap-2">
+        <ConnectWalletInfoImage />
+        <div className="flex flex-col items-start">
+          <ConnectWalletInfoBalance />
+          <ConnectWalletInfoAddress />
+        </div>
+      </ConnectWalletInfoContainer>
+    </ConnectWallet>
+  );
+}`;
+
 const tailwindSource = `@import "tailwindcss";
 @source "../node_modules/ckb-connect-wallet-kit/dist";`;
 
@@ -213,6 +313,39 @@ export function HomePage() {
             <CodeBlock label="App root — local import" lang="tsx" code={copyUsage} />
           </div>
         )}
+      </section>
+
+      <section id="examples" className="scroll-mt-24 flex flex-col gap-8">
+        <div className="flex flex-col gap-2">
+          <h2 className="text-3xl font-semibold tracking-tight">Examples</h2>
+          <p className="max-w-2xl text-black/70 dark:text-white/70">
+            <code>ConnectWallet</code> and its children must sit under a CCC provider. Use CCC’s <code>ccc.Provider</code> yourself, or pass <code>network</code> to <code>ConnectWalletKitProvider</code>. Leave off <code>className</code>, formatting props, and <code>defaults</code> to use the built-in styles.
+          </p>
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="text-xl font-semibold tracking-tight">CCC provider, no styling</h3>
+          <p className="max-w-2xl text-sm leading-6 text-black/70 dark:text-white/70">
+            The normal CCC setup. The kit only composes the button and connected info. No <code>ConnectWalletKitProvider</code>, no <code>defaults</code>, no <code>className</code>.
+          </p>
+          <CodeBlock label="ccc.Provider" lang="tsx" code={exampleCccProvider} />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="text-xl font-semibold tracking-tight">Kit provider, no defaults</h3>
+          <p className="max-w-2xl text-sm leading-6 text-black/70 dark:text-white/70">
+            <code>network</code> mounts CCC for you. Omit <code>defaults</code> so every composition uses the built-in look. Style or format a single piece with props when you need to. If the app already renders <code>ccc.Provider</code>, drop <code>network</code> and keep the same children.
+          </p>
+          <CodeBlock label="ConnectWalletKitProvider" lang="tsx" code={exampleKitNoDefaults} />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="text-xl font-semibold tracking-tight">Kit provider, with defaults</h3>
+          <p className="max-w-2xl text-sm leading-6 text-black/70 dark:text-white/70">
+            Set look and formatting once. A prop on one piece still wins over the matching default. <code>className</code> is merged last.
+          </p>
+          <CodeBlock label="defaults + composition" lang="tsx" code={exampleKitWithDefaults} />
+        </div>
       </section>
       </div>
     </div>
