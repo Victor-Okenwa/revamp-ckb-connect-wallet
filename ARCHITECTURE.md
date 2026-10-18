@@ -89,7 +89,7 @@ All sub-components read from the shared context automatically. The provider hand
 - **`packages/ckb-connect-wallet-kit/src/index.ts`** – public exports
 - **`packages/ckb-connect-wallet-kit/src/connect-wallet.tsx`** – Provider + all sub-components
 - **`packages/ckb-connect-wallet-kit/src/utils.ts`** – `cn` (clsx + tailwind-merge) and `truncateAddress` (internal, not exported)
-- **`packages/ckb-connect-wallet-kit/src/connect-wallet-kit-provider.tsx`** – root provider. `defaults` sets classes, decimal places, address truncation, and the button label. `network` (`"mainnet"` | `"testnet"`) also mounts the CCC provider. Omit `network` when the app already has `ccc.Provider`. `LayoutProvider` remains as an alias that still defaults `network` to `"testnet"`.
+- **`packages/ckb-connect-wallet-kit/src/connect-wallet-kit-provider.tsx`** – defaults provider. `defaults` sets classes, decimal places, address truncation, and the button label. It calls `ccc.useCcc()` and must sit under the app’s `ccc.Provider`. It does not mount CCC. `LayoutProvider` is the same component.
 
 Consumers install `ckb-connect-wallet-kit` and import from that package name. React, React DOM, and `@ckb-ccc/connector-react` are peer dependencies.
 

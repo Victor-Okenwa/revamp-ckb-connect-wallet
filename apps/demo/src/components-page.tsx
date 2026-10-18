@@ -21,22 +21,22 @@ const components: ComponentDoc[] = [
   {
     id: "provider",
     name: "ConnectWalletKitProvider",
-    summary: "Place this at the root, around the app. It stores the shared defaults. When network is set, it also mounts ccc.Provider.",
-    example: `<ConnectWalletKitProvider
-  network="testnet"
-  defaults={{
-    buttonClassName: "rounded-md bg-blue-600 text-white dark:bg-blue-600 dark:text-white",
-    decimalPlaces: 4,
-    frontChars: 6,
-    endChars: 4,
-    buttonLabel: "Connect",
-  }}
->
-  {children}
-</ConnectWalletKitProvider>`,
+    summary: "Sit this under the app's ccc.Provider. It only stores shared defaults. It calls ccc.useCcc(), so it will fail if CCC is missing.",
+    example: `<ccc.Provider defaultClient={new ccc.ClientPublicTestnet()}>
+  <ConnectWalletKitProvider
+    defaults={{
+      buttonClassName: "rounded-md bg-blue-600 text-white dark:bg-blue-600 dark:text-white",
+      decimalPlaces: 4,
+      frontChars: 6,
+      endChars: 4,
+      buttonLabel: "Connect",
+    }}
+  >
+    {children}
+  </ConnectWalletKitProvider>
+</ccc.Provider>`,
     props: [
       { name: "children", type: "React.ReactNode", detail: "The rest of the app." },
-      { name: "network", type: '"mainnet" | "testnet"', detail: "When set, creates the matching public CCC client and renders ccc.Provider. Omit it when the app already has a CCC provider." },
       { name: "defaults.buttonClassName", type: "ClassValue", detail: "Replaces the built-in button colors, radius, and padding. Include dark: utilities if the button should stay that color in dark mode." },
       { name: "defaults.infoContainerClassName", type: "ClassValue", detail: "Same role for the connected wallet pill." },
       { name: "defaults.imageClassName", type: "ClassValue", detail: "Replaces the default w-6 h-6 on the wallet icon." },
@@ -156,7 +156,7 @@ export function ComponentCards() {
         <p className="max-w-2xl text-black/70 dark:text-white/70">
           Seven components, two across. Open a card for a usage example and every prop.
           A prop on one piece overrides the matching provider default.
-          <code> LayoutProvider</code> is the previous name of the provider and still defaults <code>network</code> to <code>"testnet"</code>.
+          <code> LayoutProvider</code> is the previous name of the kit provider and is the same component. Both must sit under the app’s <code>ccc.Provider</code>.
         </p>
       </div>
 

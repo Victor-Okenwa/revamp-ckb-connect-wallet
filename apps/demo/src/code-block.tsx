@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
-import { getSingletonHighlighter, type BundledLanguage } from "shiki";
+import { getSingletonHighlighter, type BundledLanguage, type ThemeRegistrationRaw } from "shiki";
+import cursorDarkTheme from "./themes/cursor-dark-color-theme.json";
+
+const cursorDark = cursorDarkTheme as ThemeRegistrationRaw;
 
 function CopyButton({ value, idle = "Copy" }: { value: string; idle?: string }) {
   const [copied, setCopied] = useState(false);
@@ -7,7 +10,7 @@ function CopyButton({ value, idle = "Copy" }: { value: string; idle?: string }) 
   return (
     <button
       type="button"
-      className="shrink-0 border border-current px-3 py-1 text-xs font-semibold tracking-wide hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black"
+      className="shrink-0 rounded border border-white/15 px-3 py-1 text-xs font-semibold tracking-wide text-white/70 hover:bg-white/10 hover:text-white"
       onClick={async () => {
         try {
           await navigator.clipboard.writeText(value);
@@ -30,17 +33,13 @@ export function CodeBlock({ code, label, lang }: { code: string; label?: string;
   useEffect(() => {
     let active = true;
     getSingletonHighlighter({
-      themes: ["github-light", "github-dark"],
+      themes: [cursorDark],
       langs: ["tsx", "typescript", "css", "bash"],
     }).then((highlighter) => {
       if (!active) return;
       setHtml(highlighter.codeToHtml(source, {
         lang,
-        themes: {
-          light: "github-light",
-          dark: "github-dark",
-        },
-        defaultColor: false,
+        theme: cursorDark.name,
       }));
     });
     return () => {
@@ -49,15 +48,15 @@ export function CodeBlock({ code, label, lang }: { code: string; label?: string;
   }, [source, lang]);
 
   return (
-    <div className="code-block border border-black/15 dark:border-white/15">
-      <div className="flex items-center justify-between gap-3 border-b border-black/10 px-3 py-2 dark:border-white/10">
-        <span className="font-mono text-xs text-black/60 dark:text-white/60">{label}</span>
+    <div className="code-block overflow-hidden rounded-xl border border-white/10 bg-[#181818] text-[#F0F0F0]">
+      <div className="flex items-center justify-between gap-3 border-b border-white/10 bg-[#141414] px-3 py-2">
+        <span className="font-mono text-xs text-white/55">{label}</span>
         <CopyButton value={source} />
       </div>
       {html ? (
         <div dangerouslySetInnerHTML={{ __html: html }} />
       ) : (
-        <pre className="max-h-80 overflow-auto p-4 text-left text-sm leading-6">
+        <pre className="max-h-80 overflow-auto bg-[#181818] p-4 text-left text-sm leading-6 text-[#F0F0F0]">
           <code>{source}</code>
         </pre>
       )}

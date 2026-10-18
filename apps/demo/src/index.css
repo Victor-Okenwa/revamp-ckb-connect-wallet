@@ -112,11 +112,10 @@ code {
 
 .code-block .shiki,
 .code-block .shiki span {
-  color: var(--shiki-light);
-  background-color: var(--shiki-light-bg);
-  font-style: var(--shiki-light-font-style);
-  font-weight: var(--shiki-light-font-weight);
-  text-decoration: var(--shiki-light-text-decoration);
+  background-color: #181818;
+  font-style: var(--shiki-dark-font-style, var(--shiki-light-font-style));
+  font-weight: var(--shiki-dark-font-weight, var(--shiki-light-font-weight));
+  text-decoration: var(--shiki-dark-text-decoration, var(--shiki-light-text-decoration));
 }
 
 .code-block .shiki {
@@ -124,20 +123,10 @@ code {
   max-height: 20rem;
   overflow: auto;
   padding: 1rem;
+  color: #f0f0f0;
   font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 0.875rem;
   line-height: 1.5rem;
-}
-
-@media (prefers-color-scheme: dark) {
-  .code-block .shiki,
-  .code-block .shiki span {
-    color: var(--shiki-dark) !important;
-    background-color: var(--shiki-dark-bg) !important;
-    font-style: var(--shiki-dark-font-style) !important;
-    font-weight: var(--shiki-dark-font-weight) !important;
-    text-decoration: var(--shiki-dark-text-decoration) !important;
-  }
 }
 
 
