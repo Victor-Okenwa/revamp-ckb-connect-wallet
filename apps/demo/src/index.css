@@ -72,6 +72,41 @@ code {
   .spin-slow {
     animation: ani-spin-slow infinite 20s linear;
   }
+
+  .hero-line {
+    animation: hero-line-in 0.7s ease both;
+  }
+
+  .hero-line-delay {
+    animation-delay: 0.15s;
+  }
+
+  .hero-word {
+    display: inline-block;
+    animation: hero-word-in 0.45s ease both;
+  }
+}
+
+@keyframes hero-line-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.35em);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hero-word-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.45em);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes ani-spin-slow {
