@@ -93,21 +93,6 @@ const sourceFiles = [
   },
 ] as const;
 
-function WalletCluster({ stacked = false }: { stacked?: boolean }) {
-  return (
-    <ConnectWallet>
-      <ConnectWalletButton />
-      <ConnectWalletInfoContainer className={stacked ? "flex items-center gap-3" : "flex items-center gap-2"}>
-        <ConnectWalletInfoImage />
-        <div className={stacked ? "flex flex-col items-start" : "flex items-baseline gap-2"}>
-          <ConnectWalletInfoBalance decimalPlaces={4} withCurrency={stacked} />
-          <ConnectWalletInfoAddress frontChars={stacked ? 8 : 5} endChars={4} />
-        </div>
-      </ConnectWalletInfoContainer>
-    </ConnectWallet>
-  );
-}
-
 export function HomePage() {
   const [installPath, setInstallPath] = useState<InstallPath>("package");
   const [manager, setManager] = useState<PackageManager>("npm");
@@ -115,43 +100,42 @@ export function HomePage() {
   const activeSource = sourceFiles.find((file) => file.id === sourceId) ?? sourceFiles[0];
 
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-20 px-5 py-16">
-      <section className="grid items-end gap-10 lg:grid-cols-[1.2fr_0.8fr]">
-        <div className="flex flex-col gap-6">
-          <p className="hero-line text-xs font-semibold uppercase tracking-[0.18em] text-black/55 dark:text-white/55">
-            Published · v0.1.0 · MIT
-          </p>
-          <HeroTitle />
-          <p className="hero-line hero-line-delay max-w-xl text-lg leading-8 text-black/75 dark:text-white/75">
-            Compound components for <code>@ckb-ccc/connector-react</code>. Install the npm package, or copy the source into your app and own the files.
-          </p>
-          <div className="flex flex-wrap gap-3">
-            <a href="#install" className="bg-black px-5 py-3 text-sm font-bold text-white dark:bg-white dark:text-black">
-              Choose an install path
-            </a>
-            <a href="#/components" className="border border-black/20 px-5 py-3 text-sm font-bold dark:border-white/20">
-              Component reference
-            </a>
-            <a href="#/demo" className="border border-black/20 px-5 py-3 text-sm font-bold dark:border-white/20">
-              Open the demo
-            </a>
-          </div>
+    <div className="flex flex-col">
+      <section className="relative flex min-h-[calc(100svh-4.75rem)] items-center justify-center overflow-hidden bg-black text-white">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute left-1/2 top-1/2 h-[80vmin] w-[80vmin] -translate-x-1/2 -translate-y-1/2 text-white opacity-20"
+        >
+          <img src="/images/ckb-logo.svg" alt="" className="h-full w-full" />
         </div>
 
-        <div className="demo-stage flex min-h-64 flex-col justify-between border border-black/15 p-6 dark:border-white/15">
-          <div className="flex items-center justify-between text-xs uppercase tracking-[0.16em] text-black/50 dark:text-white/50">
-            <span>Live · testnet by default</span>
-            <span>Stacked</span>
-          </div>
-          <div className="flex justify-center py-8">
-            <WalletCluster stacked />
-          </div>
-          <p className="text-sm leading-6 text-black/70 dark:text-white/70">
-            The header and this panel are two compositions of the same components. Connecting once updates both.
+        <div className="relative z-10 flex max-w-4xl flex-col items-center px-5 py-16 text-center">
+          <p className="mb-8 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs tracking-wide text-white/80">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+            v0.1.0 - drop-in React component
           </p>
+          <HeroTitle />
+          <p className="mt-6 max-w-xl text-base leading-7 text-white/70 sm:text-lg">
+            Faster development with ckb wallet component. Choose what to show and how to show it.
+          </p>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <a href="#install" className="rounded-full bg-white px-6 py-2.5 text-sm font-semibold text-black">
+              Get started
+            </a>
+            <a
+              href="https://github.com/Victor-Okenwa/revamp-ckb-connect-wallet"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-black px-6 py-2.5 text-sm font-semibold text-white"
+            >
+              <img src="/images/github.svg" alt="" width={16} height={16} className="h-4 w-4 invert" />
+              GitHub
+            </a>
+          </div>
         </div>
       </section>
 
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-20 px-5 py-16">
       <section id="install" className="flex flex-col gap-6">
         <div className="flex flex-col gap-2">
           <h2 className="text-3xl font-semibold tracking-tight">Two ways to add it</h2>
@@ -228,6 +212,7 @@ export function HomePage() {
           </div>
         )}
       </section>
+      </div>
     </div>
   );
 }

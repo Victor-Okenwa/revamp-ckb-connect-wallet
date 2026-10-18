@@ -28,11 +28,14 @@ function App() {
 
   return (
     <div className="min-h-screen">
-      <header className="sticky top-0 z-10 border-b border-black/10 bg-[var(--background)]/90 backdrop-blur dark:border-white/10">
+      <header className={route === "home"
+        ? "sticky top-0 z-20 border-b border-white/10 bg-black/70 text-white backdrop-blur"
+        : "sticky top-0 z-20 border-b border-black/10 bg-[var(--background)]/90 backdrop-blur dark:border-white/10"
+      }>
         <div className="mx-auto grid max-w-6xl grid-cols-[1fr_auto] items-center gap-x-4 gap-y-3 px-5 py-4 sm:grid-cols-[auto_1fr_auto]">
-          <a href="#/" className="flex items-center gap-3">
-            <img src="/images/ccc-logo.svg" alt="" width={28} height={28} className="h-7 w-7" />
-            <span className="text-sm font-semibold tracking-tight">ckb-connect-wallet-kit</span>
+          <a href="#/" className="text-sm font-semibold tracking-tight">
+            <span className="hidden lg:inline">CKB Connect Wallet Kit</span>
+            <span className="lg:hidden">CKBWCK</span>
           </a>
           <nav className="col-span-2 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm sm:col-span-1 sm:col-start-2 sm:justify-self-center">
             <a href="#/" className={route === "home" ? "underline" : "hover:underline"}>Home</a>
