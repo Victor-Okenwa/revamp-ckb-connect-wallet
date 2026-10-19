@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 import { getSingletonHighlighter, type BundledLanguage, type ThemeRegistrationRaw } from "shiki";
 import cursorDarkTheme from "./themes/cursor-dark-color-theme.json";
 
-const cursorDark = cursorDarkTheme as ThemeRegistrationRaw;
+// The VS Code theme file uses `tokenColors`; Shiki accepts that shape at runtime
+// but its type requires `settings`, so the cast goes through unknown.
+const cursorDark = cursorDarkTheme as unknown as ThemeRegistrationRaw;
+const cursorDarkName = cursorDark.name ?? "cursor-dark";
 
 function CopyButton({ value, idle = "Copy" }: { value: string; idle?: string }) {
   const [copied, setCopied] = useState(false);
@@ -39,7 +42,7 @@ export function CodeBlock({ code, label, lang }: { code: string; label?: string;
       if (!active) return;
       setHtml(highlighter.codeToHtml(source, {
         lang,
-        theme: cursorDark.name,
+        theme: cursorDarkName,
       }));
     });
     return () => {
