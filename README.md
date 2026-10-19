@@ -251,7 +251,7 @@ bun run dev
 
 ## Demo on Vercel
 
-The demo is a static Vite site. Import this GitHub repository on Vercel and leave **Root Directory** as the repository root (not `apps/demo`). `vercel.json` installs with Bun, builds the kit, then the demo, and serves `apps/demo/dist`.
+The demo is a static Vite site. Import this GitHub repository on Vercel and leave **Root Directory** as the repository root (not `apps/demo`). `vercel.json` installs with Bun, builds the kit, then the demo, copies the site to `dist`, and serves that folder. If Project Settings has an Output Directory override, set it to `dist` or turn the override off.
 
 Optional environment variable:
 

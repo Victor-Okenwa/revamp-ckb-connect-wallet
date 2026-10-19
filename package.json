@@ -10,6 +10,7 @@
   },
   "scripts": {
     "dev": "bun run --filter ckb-connect-wallet-kit build && bun run --parallel dev",
-    "build": "bun run --filter ckb-connect-wallet-kit build && bun run --filter ckb-connect-wallet-demo build"
+    "build": "bun run --filter ckb-connect-wallet-kit build && bun run --filter ckb-connect-wallet-demo build",
+    "build:vercel": "bun run build && if [ -d apps/demo/dist ]; then rm -rf dist && cp -R apps/demo/dist dist; fi"
   }
 }
