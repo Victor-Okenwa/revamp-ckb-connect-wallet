@@ -1,5 +1,6 @@
 {
   "name": "ckb-connect-wallet-demo",
+  "private": true,
   "version": "0.2.1",
   "dependencies": {
     "@ckb-ccc/connector-react": "^1.0.0",

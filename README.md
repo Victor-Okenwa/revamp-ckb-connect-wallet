@@ -249,6 +249,14 @@ bun run dev
 
 `bun run build` builds the library, then the demo.
 
+## Demo on Vercel
+
+The demo is a static Vite site. Import this GitHub repository on Vercel and leave **Root Directory** as the repository root (not `apps/demo`). `vercel.json` installs with Bun, builds the kit, then the demo, and serves `apps/demo/dist`.
+
+Optional environment variable:
+
+- `VITE_IS_MAINNET` — set to `true` to default CCC to mainnet. Omit it for testnet.
+
 ## License
 
 [MIT](./LICENSE)
