@@ -197,6 +197,44 @@ export function App() {
   );
 }`;
 
+const exampleDidProfile = `import { ccc } from "@ckb-ccc/connector-react";
+import {
+  ConnectWallet,
+  ConnectWalletButton,
+  ConnectWalletDid,
+  ConnectWalletDidAvatar,
+  ConnectWalletDidId,
+  ConnectWalletDidName,
+  ConnectWalletInfoAddress,
+  ConnectWalletInfoContainer,
+  ConnectWalletInfoImage,
+} from "ckb-connect-wallet-kit";
+
+export function App() {
+  return (
+    <ccc.Provider
+      defaultClient={new ccc.ClientPublicTestnet()}
+      clientOptions={[
+        { name: "CKB Testnet", client: new ccc.ClientPublicTestnet() },
+        { name: "CKB Mainnet", client: new ccc.ClientPublicMainnet() },
+      ]}
+    >
+      <ConnectWallet>
+        <ConnectWalletButton />
+        <ConnectWalletInfoContainer className="flex items-center gap-2">
+          <ConnectWalletDid>
+            <ConnectWalletDidAvatar fallback={<ConnectWalletInfoImage />} />
+            <div className="flex flex-col items-start">
+              <ConnectWalletDidName fallback={<ConnectWalletInfoAddress frontChars={6} endChars={4} />} />
+              <ConnectWalletDidId />
+            </div>
+          </ConnectWalletDid>
+        </ConnectWalletInfoContainer>
+      </ConnectWallet>
+    </ccc.Provider>
+  );
+}`;
+
 const tailwindSource = `@import "tailwindcss";
 @source "../node_modules/ckb-connect-wallet-kit/dist";`;
 
@@ -360,7 +398,7 @@ export function HomePage() {
         <div className="flex flex-col gap-2">
           <h2 className="text-3xl font-semibold tracking-tight">Examples</h2>
           <p className="max-w-2xl text-black/70 dark:text-white/70">
-            Mount your own <code>ccc.Provider</code>. <code>ConnectWalletKitProvider</code> only supplies defaults and must sit under that provider. Leave off <code>className</code>, formatting props, and <code>defaults</code> to use the built-in styles.
+            Mount your own <code>ccc.Provider</code>. <code>ConnectWalletKitProvider</code> only supplies defaults and must sit under that provider. Leave off <code>className</code>, formatting props, and <code>defaults</code> to use the built-in styles. The DID tree is optional and only fetches when you render it.
           </p>
         </div>
 
@@ -386,6 +424,14 @@ export function HomePage() {
             Set look and formatting once. A prop on one piece still wins over the matching default. <code>className</code> is merged last.
           </p>
           <CodeBlock label="defaults + composition" lang="tsx" code={exampleKitWithDefaults} />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h3 className="text-xl font-semibold tracking-tight">did:ckb profile</h3>
+          <p className="max-w-2xl text-sm leading-6 text-black/70 dark:text-white/70">
+            Optional. <code>ConnectWalletDid</code> lists the live did:ckb cells owned by the connected lock and shares the newest one with its children. Each piece takes a <code>fallback</code> for wallets with no DID or no profile. Creating or editing a DID is outside this kit.
+          </p>
+          <CodeBlock label="ConnectWalletDid" lang="tsx" code={exampleDidProfile} />
         </div>
       </section>
       </div>

@@ -2,7 +2,7 @@
 
 **Compound React wallet connection UI for [`@ckb-ccc/connector-react`](https://www.npmjs.com/package/@ckb-ccc/connector-react) (Nervos CKB).**
 
-Compose the connect button, wallet icon, balance, and address yourself. Shared state lives in React context, so there is no prop drilling. A value on a single component overrides the matching provider default.
+Compose the connect button, wallet icon, balance, and address yourself. Shared state lives in React context, so there is no prop drilling. A value on a single component overrides the matching provider default. Wrap the connected pill in `ConnectWalletDid` when you also want the lock’s did:ckb avatar, display name, and identifier.
 
 [Repository](https://github.com/Victor-Okenwa/revamp-ckb-connect-wallet) · [Issues](https://github.com/Victor-Okenwa/revamp-ckb-connect-wallet/issues)
 
@@ -183,7 +183,7 @@ For appearance classes:
 2. `defaults.*ClassName` from `ConnectWalletKitProvider`
 3. `className` on the component (merged last)
 
-For values (`decimalPlaces`, `withCurrency`, `frontChars`, `endChars`, button label):
+For values (`decimalPlaces`, `withCurrency`, `frontChars`, `endChars`, `didFrontChars`, `didEndChars`, button label):
 
 1. Built-in fallback
 2. `defaults.*` from the provider

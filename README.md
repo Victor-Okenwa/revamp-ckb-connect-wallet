@@ -2,7 +2,7 @@
 
 **Modern, flexible wallet connection UI for `@ckb-ccc/connector-react` (Nervos CKB)**
 
-A clean compound component with full control over layout, styling, balance formatting, address truncation, currency display, and loading states — with zero prop drilling.
+A clean compound component with full control over layout, styling, balance formatting, address truncation, currency display, and loading states — with zero prop drilling. An optional did:ckb profile sits beside those pieces when you want it.
 
 ---
 
