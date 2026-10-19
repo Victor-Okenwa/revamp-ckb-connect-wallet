@@ -15,7 +15,6 @@
     "noFallthroughCasesInSwitch": true,
     "module": "esnext",
     "moduleResolution": "bundler",
-    "baseUrl": ".",
     "paths": {
       "ckb-connect-wallet-kit": ["../../packages/ckb-connect-wallet-kit/src/index.ts"]
     },
