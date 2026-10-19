@@ -4,7 +4,7 @@
 
 Compose the connect button, wallet icon, balance, and address yourself. Shared state lives in React context, so there is no prop drilling. A value on a single component overrides the matching provider default. Wrap the connected pill in `ConnectWalletDid` when you also want the lock’s did:ckb avatar, display name, and identifier.
 
-[Repository](https://github.com/Victor-Okenwa/revamp-ckb-connect-wallet) · [Issues](https://github.com/Victor-Okenwa/revamp-ckb-connect-wallet/issues)
+[Demo](https://ckb-connect-wallet-kit.vercel.app/) · [Repository](https://github.com/Victor-Okenwa/revamp-ckb-connect-wallet) · [Issues](https://github.com/Victor-Okenwa/revamp-ckb-connect-wallet/issues)
 
 ## Features
 

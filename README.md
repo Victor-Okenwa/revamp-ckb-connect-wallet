@@ -4,6 +4,8 @@
 
 A clean compound component with full control over layout, styling, balance formatting, address truncation, currency display, and loading states — with zero prop drilling. An optional did:ckb profile sits beside those pieces when you want it.
 
+[Demo](https://ckb-connect-wallet-kit.vercel.app/) · [npm](https://www.npmjs.com/package/ckb-connect-wallet-kit) · [Repository](https://github.com/Victor-Okenwa/revamp-ckb-connect-wallet)
+
 ---
 
 ## Features
