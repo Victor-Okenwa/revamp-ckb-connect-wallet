@@ -409,7 +409,7 @@ export function HomePage() {
       </section>
 
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-20 px-5 py-16">
-        <ComponentCards />
+        <ComponentCards limit={6} />
         <section id="install" className="scroll-mt-24 flex flex-col gap-6">
           <div className="flex flex-col gap-2">
             <h2 className="text-3xl font-semibold tracking-tight">Two ways to add it</h2>

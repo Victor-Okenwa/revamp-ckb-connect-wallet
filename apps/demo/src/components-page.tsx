@@ -452,22 +452,26 @@ function toggleCard(id: string, openId: string, setOpenId: (next: string) => voi
   }
 }
 
-export function ComponentCards() {
+export function ComponentCards({ limit }: { limit?: number }) {
   const [openId, setOpenId] = useState("");
+  const shown = typeof limit === "number" ? components.slice(0, limit) : components;
+  const preview = shown.length < components.length;
 
   return (
-    <section id="components" className="scroll-mt-24 flex flex-col gap-6">
+    <section className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
         <h2 className="text-3xl font-semibold tracking-tight">The pieces</h2>
         <p className="max-w-2xl text-black/70 dark:text-white/70">
-          Open a card for a usage example and every prop. The dialog pieces are optional and replace CCC's popup. The four DID pieces are optional and only fetch when rendered.
-          A prop on one piece overrides the matching provider default.
-          <code> LayoutProvider</code> is the previous name of the kit provider and is the same component. Both must sit under the app’s <code>ccc.Provider</code>.
+          {preview
+            ? <>The first six of {components.length} components. Open a card for a usage example and every prop.</>
+            : <>Open a card for a usage example and every prop. The dialog pieces are optional and replace CCC's popup. The four DID pieces are optional and only fetch when rendered.
+              A prop on one piece overrides the matching provider default.
+              <code> LayoutProvider</code> is the previous name of the kit provider and is the same component. Both must sit under the app’s <code>ccc.Provider</code>.</>}
         </p>
       </div>
 
       <div className="component-grid">
-        {components.map((component) => {
+        {shown.map((component) => {
           const open = openId === component.id;
           const panelId = `${component.id}-panel`;
           return (
@@ -533,6 +537,22 @@ export function ComponentCards() {
           );
         })}
       </div>
+      {preview ? (
+        <a
+          href="#/components"
+          className="inline-flex w-fit items-center rounded-full border border-black/15 px-5 py-2 text-sm font-semibold hover:bg-black hover:text-white dark:border-white/15 dark:hover:bg-white dark:hover:text-black"
+        >
+          See more
+        </a>
+      ) : null}
     </section>
+  );
+}
+
+export function ComponentsPage() {
+  return (
+    <div className="mx-auto flex w-full max-w-6xl flex-col px-5 py-16">
+      <ComponentCards />
+    </div>
   );
 }

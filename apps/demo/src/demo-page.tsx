@@ -14,6 +14,7 @@ import {
   useConnectWalletDid,
 } from "ckb-connect-wallet-kit";
 import { CodeBlock } from "./code-block";
+import { UsageExamples } from "./usage-examples";
 import { WalletDialog } from "./wallet-dialog";
 
 type DecimalPlaces = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20;
@@ -46,7 +47,7 @@ function DidStatus() {
   );
 }
 
-export function DemoPage() {
+export function UsagePage() {
   const { wallet } = ccc.useCcc();
   const [decimalPlaces, setDecimalPlaces] = useState<DecimalPlaces>(4);
   const [withCurrency, setWithCurrency] = useState(true);
@@ -124,7 +125,7 @@ export function DemoPage() {
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-8 px-5 py-16">
       <div className="flex flex-col gap-3">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-black/55 dark:text-white/55">Demo</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-black/55 dark:text-white/55">Usage</p>
         <h1 className="text-4xl font-semibold tracking-tight">Connect, then change the composition</h1>
         <p className="max-w-2xl text-lg leading-8 text-black/75 dark:text-white/75">
           The playground uses the same pieces the kit exports. Connect a wallet and the controls below rewrite that tree. <code>open</code> in the snippet is <code>useConnectWallet().open</code>.
@@ -224,6 +225,7 @@ export function DemoPage() {
         )}
         <WalletDialog />
       </ConnectWalletContainer>
+      <UsageExamples />
     </div>
   );
 }
