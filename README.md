@@ -24,6 +24,25 @@ A clean compound component with full control over layout, styling, balance forma
 - **Dark mode ready** + modern default styles
 - **Type-safe** – TypeScript everywhere
 
+## 0.3.0
+
+The connected pieces are no longer wrapped by a kit pill. Compose the icon, name, balance, and address yourself. `ConnectWalletDialog` replaces CCC’s popup when you mount it.
+
+## Deprecated
+
+These names shipped in 0.2.1 and earlier. They are not exported.
+
+| Deprecated | Use instead |
+| --- | --- |
+| `ConnectWallet` | `ConnectWalletContainer` |
+| `ConnectWalletInfoContainer` | Your own element around the connected pieces |
+| `ConnectWalletInfoImage` | `ConnectWalletImage` |
+| `ConnectWalletInfoBalance` | `ConnectWalletBalance` |
+| `ConnectWalletInfoAddress` | `ConnectWalletAddress` |
+| `defaults.infoContainerClassName` | Style the element you compose |
+
+`LayoutProvider` is still exported and is deprecated. Use `ConnectWalletKitProvider`.
+
 ---
 
 ## Install

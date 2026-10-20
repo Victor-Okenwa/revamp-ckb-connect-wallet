@@ -20,6 +20,27 @@ Compose the connect button, wallet icon, name, balance, address, and account pop
 - **did:ckb profile** — optional avatar, display name, and identifier for the connected lock
 - **TypeScript** — exported types for defaults, `DecimalPlaces`, and `DidProfile`
 
+## 0.3.0
+
+The connected pieces no longer sit in a kit-owned pill. You compose the icon, name, balance, and address yourself. Mount `ConnectWalletDialog` when you want to replace CCC’s popup. Leave it out and `open()` still opens CCC.
+
+New pieces: `ConnectWalletName`, `ConnectWalletDisconnect`, `ConnectWalletSwitchNetwork`, and the `ConnectWalletDialog*` sections (`WalletList` can show every wallet, a chosen set, icons only, or names only).
+
+## Deprecated
+
+These names shipped in 0.2.1 and earlier. They are not exported.
+
+| Deprecated | Use instead |
+| --- | --- |
+| `ConnectWallet` | `ConnectWalletContainer` |
+| `ConnectWalletInfoContainer` | Your own element around the connected pieces |
+| `ConnectWalletInfoImage` | `ConnectWalletImage` |
+| `ConnectWalletInfoBalance` | `ConnectWalletBalance` |
+| `ConnectWalletInfoAddress` | `ConnectWalletAddress` |
+| `defaults.infoContainerClassName` | Style the element you compose |
+
+`LayoutProvider` is still exported and is deprecated. Use `ConnectWalletKitProvider`.
+
 ## Install
 
 React, React DOM, and `@ckb-ccc/connector-react` are peer dependencies:
@@ -228,9 +249,9 @@ Sit this under the app’s `ccc.Provider`. It only stores shared defaults. It ca
 | `dialogAccountFooterClassName` | `ClassValue` | `flex flex-col gap-2` | Replaces the account footer layout. |
 | `dialogCloseClassName` | `ClassValue` | round icon button | Replaces `ConnectWalletDialogClose` on every dialog step. |
 
-### `LayoutProvider`
+### `LayoutProvider` (deprecated)
 
-Same component as `ConnectWalletKitProvider`. Same props. Must sit under the app’s `ccc.Provider`.
+Same component as `ConnectWalletKitProvider`. Same props. Must sit under the app’s `ccc.Provider`. Prefer `ConnectWalletKitProvider`.
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |

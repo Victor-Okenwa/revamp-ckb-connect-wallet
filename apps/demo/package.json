@@ -1,7 +1,7 @@
 {
   "name": "ckb-connect-wallet-demo",
   "private": true,
-  "version": "0.2.1",
+  "version": "0.3.0",
   "dependencies": {
     "@ckb-ccc/connector-react": "^1.0.0",
     "@tailwindcss/vite": "^4.2.2",
