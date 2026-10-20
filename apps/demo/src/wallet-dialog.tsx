@@ -3,7 +3,7 @@ import {
   ConnectWalletBalance,
   ConnectWalletDialog,
   ConnectWalletDialogAccount,
-  ConnectWalletDialogAccountClose,
+  ConnectWalletDialogClose,
   ConnectWalletDialogAccountFooter,
   ConnectWalletDialogAccountHeader,
   ConnectWalletDialogConnecting,
@@ -29,7 +29,7 @@ export function WalletDialog() {
         <ConnectWalletDialogAccount>
           <ConnectWalletDialogAccountHeader>
             <ConnectWalletName />
-            <ConnectWalletDialogAccountClose />
+            <ConnectWalletDialogClose />
           </ConnectWalletDialogAccountHeader>
           <ConnectWalletDid>
             <div className="flex flex-col items-center gap-2 py-1">

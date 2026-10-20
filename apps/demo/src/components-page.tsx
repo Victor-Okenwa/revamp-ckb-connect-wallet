@@ -60,7 +60,7 @@ const components: ComponentDoc[] = [
       { name: "defaults.dialogActionClassName", type: "ClassValue", detail: "Replaces the built-in Try again button." },
       { name: "defaults.dialogAccountHeaderClassName", type: "ClassValue", detail: "Replaces the built-in account header layout." },
       { name: "defaults.dialogAccountFooterClassName", type: "ClassValue", detail: "Replaces the built-in account footer layout." },
-      { name: "defaults.dialogCloseClassName", type: "ClassValue", detail: "Replaces the built-in account close button." },
+      { name: "defaults.dialogCloseClassName", type: "ClassValue", detail: "Replaces ConnectWalletDialogClose on every dialog step." },
     ],
   },
   {
@@ -161,7 +161,7 @@ const components: ComponentDoc[] = [
       <ConnectWalletDialogAccount>
         <ConnectWalletDialogAccountHeader>
           <ConnectWalletName />
-          <ConnectWalletDialogAccountClose />
+          <ConnectWalletDialogClose />
         </ConnectWalletDialogAccountHeader>
         <ConnectWalletAddress />
         <ConnectWalletBalance />
@@ -229,7 +229,7 @@ const components: ComponentDoc[] = [
     example: `<ConnectWalletDialogAccount>
   <ConnectWalletDialogAccountHeader>
     <ConnectWalletName />
-    <ConnectWalletDialogAccountClose />
+    <ConnectWalletDialogClose />
   </ConnectWalletDialogAccountHeader>
   <ConnectWalletAddress />
   <ConnectWalletBalance />
@@ -249,7 +249,7 @@ const components: ComponentDoc[] = [
     summary: "Account header row. Renders only on the account step.",
     example: `<ConnectWalletDialogAccountHeader>
   <ConnectWalletName />
-  <ConnectWalletDialogAccountClose />
+  <ConnectWalletDialogClose />
 </ConnectWalletDialogAccountHeader>`,
     props: [
       { name: "children", type: "React.ReactNode", detail: "Usually the wallet name and the close button." },
@@ -258,9 +258,9 @@ const components: ComponentDoc[] = [
   },
   {
     id: "dialog-account-close",
-    name: "ConnectWalletDialogAccountClose",
-    summary: "Closes the dialog. The children replace the × glyph. label is the accessible name.",
-    example: `<ConnectWalletDialogAccountClose label="Close" />`,
+    name: "ConnectWalletDialogClose",
+    summary: "Closes the dialog on every open step. The wallet, chain, and connecting frames include this same button. The children replace the × glyph. label is the accessible name.",
+    example: `<ConnectWalletDialogClose label="Close" />`,
     props: [
       { name: "children", type: "React.ReactNode", detail: "Visible content. Built-in is ×." },
       { name: "className", type: "ClassValue", detail: "Merged after defaults.dialogCloseClassName." },

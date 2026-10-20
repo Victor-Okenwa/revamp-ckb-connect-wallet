@@ -73,7 +73,7 @@ export function DemoPage() {
       <ConnectWalletDialogAccount>
         <ConnectWalletDialogAccountHeader>
           <ConnectWalletName />
-          <ConnectWalletDialogAccountClose />
+          <ConnectWalletDialogClose />
         </ConnectWalletDialogAccountHeader>
         <ConnectWalletDialogAccountFooter>
           <ConnectWalletDisconnect buttonText="Disconnect" />

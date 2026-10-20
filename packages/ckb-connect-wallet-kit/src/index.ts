@@ -25,7 +25,7 @@ export {
   ConnectWalletDialogConnecting,
   ConnectWalletDialogAccount,
   ConnectWalletDialogAccountHeader,
-  ConnectWalletDialogAccountClose,
+  ConnectWalletDialogClose,
   ConnectWalletDialogAccountFooter,
   ConnectWalletSwitchNetwork,
   useConnectWalletDialog,

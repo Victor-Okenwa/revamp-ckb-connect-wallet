@@ -253,7 +253,7 @@ Mount `ConnectWalletDialog` inside `ConnectWalletContainer`. The connect button,
       <ConnectWalletDialogAccount>
         <ConnectWalletDialogAccountHeader>
           <ConnectWalletName />
-          <ConnectWalletDialogAccountClose />
+          <ConnectWalletDialogClose />
         </ConnectWalletDialogAccountHeader>
         <ConnectWalletDialogAccountFooter>
           <ConnectWalletDisconnect buttonText="Disconnect" />

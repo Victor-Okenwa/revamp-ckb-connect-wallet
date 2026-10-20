@@ -226,7 +226,7 @@ Sit this under the app’s `ccc.Provider`. It only stores shared defaults. It ca
 | `dialogActionClassName` | `ClassValue` | `flex w-full ... rounded-xl bg-black px-3 py-3 text-sm font-semibold text-white ... dark:bg-white dark:text-black` | Replaces Try again. |
 | `dialogAccountHeaderClassName` | `ClassValue` | `flex items-center justify-between gap-2` | Replaces the account header layout. |
 | `dialogAccountFooterClassName` | `ClassValue` | `flex flex-col gap-2` | Replaces the account footer layout. |
-| `dialogCloseClassName` | `ClassValue` | round icon button | Replaces the account close button. |
+| `dialogCloseClassName` | `ClassValue` | round icon button | Replaces `ConnectWalletDialogClose` on every dialog step. |
 
 ### `LayoutProvider`
 
@@ -321,7 +321,7 @@ The wallet list, chain list, and connecting state are built-in sections. The acc
       <ConnectWalletDialogAccount>
         <ConnectWalletDialogAccountHeader>
           <ConnectWalletName />
-          <ConnectWalletDialogAccountClose />
+          <ConnectWalletDialogClose />
         </ConnectWalletDialogAccountHeader>
         <ConnectWalletAddress />
         <ConnectWalletBalance />
@@ -426,9 +426,9 @@ Row for the account step. A usual place for `ConnectWalletName` and the close bu
 | `children` | `React.ReactNode` | — | Header contents. |
 | `className` | `ClassValue` | — | Merged after `defaults.dialogAccountHeaderClassName`. |
 
-### `ConnectWalletDialogAccountClose`
+### `ConnectWalletDialogClose`
 
-Closes the dialog. Renders only on the account step.
+Closes the dialog. Renders on every open step. The wallet, chain, and connecting frames include this same button. Place it yourself inside `ConnectWalletDialogAccountHeader`.
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |

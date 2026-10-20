@@ -370,7 +370,6 @@ function DialogFrame({
     className?: ClassValue;
     children: React.ReactNode;
 }) {
-    const { close } = useConnectWalletDialog();
     const defaults = useConnectWalletDefaults();
     const titleId = useId();
 
@@ -385,9 +384,7 @@ function DialogFrame({
                 <h2 id={titleId} className={cn("text-center", defaults.dialogTitleClassName ?? dialogTitleAppearance)}>
                     {title}
                 </h2>
-                <button type="button" className={dialogIconButtonAppearance} onClick={close} aria-label="Close">
-                    ×
-                </button>
+                <ConnectWalletDialogClose />
             </div>
             {children}
         </div>
@@ -638,7 +635,8 @@ export function ConnectWalletDialogAccountHeader({
     );
 }
 
-export function ConnectWalletDialogAccountClose({
+/** Close control for every open dialog step, including wallets, chains, connecting, and the account. */
+export function ConnectWalletDialogClose({
     children,
     className,
     label = "Close",
@@ -650,7 +648,7 @@ export function ConnectWalletDialogAccountClose({
 }) {
     const dialog = useConnectWalletDialog();
     const defaults = useConnectWalletDefaults();
-    if (!dialog.isOpen || !accountStep(dialog.status)) return null;
+    if (!dialog.isOpen) return null;
 
     return (
         <button
