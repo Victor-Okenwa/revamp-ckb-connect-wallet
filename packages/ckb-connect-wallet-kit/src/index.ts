@@ -1,10 +1,11 @@
 export {
-  ConnectWallet,
+  ConnectWalletContainer,
   ConnectWalletButton,
-  ConnectWalletInfoContainer,
-  ConnectWalletInfoImage,
-  ConnectWalletInfoBalance,
-  ConnectWalletInfoAddress,
+  ConnectWalletImage,
+  ConnectWalletBalance,
+  ConnectWalletAddress,
+  ConnectWalletName,
+  ConnectWalletDisconnect,
   useConnectWallet,
 } from "./connect-wallet";
 
@@ -23,6 +24,10 @@ export {
   ConnectWalletDialogSigners,
   ConnectWalletDialogConnecting,
   ConnectWalletDialogAccount,
+  ConnectWalletDialogAccountHeader,
+  ConnectWalletDialogAccountClose,
+  ConnectWalletDialogAccountFooter,
+  ConnectWalletSwitchNetwork,
   useConnectWalletDialog,
 } from "./connect-wallet-dialog";
 

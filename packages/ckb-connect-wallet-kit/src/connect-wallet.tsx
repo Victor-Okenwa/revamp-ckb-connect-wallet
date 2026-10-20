@@ -7,10 +7,11 @@ export type DecimalPlaces = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12
 
 export type ConnectWalletDefaults = {
     buttonClassName?: ClassValue;
-    infoContainerClassName?: ClassValue;
     imageClassName?: ClassValue;
     balanceClassName?: ClassValue;
     addressClassName?: ClassValue;
+    nameClassName?: ClassValue;
+    disconnectClassName?: ClassValue;
     decimalPlaces?: DecimalPlaces;
     withCurrency?: boolean;
     frontChars?: number;
@@ -26,6 +27,9 @@ export type ConnectWalletDefaults = {
     dialogTitleClassName?: ClassValue;
     dialogListButtonClassName?: ClassValue;
     dialogActionClassName?: ClassValue;
+    dialogAccountHeaderClassName?: ClassValue;
+    dialogAccountFooterClassName?: ClassValue;
+    dialogCloseClassName?: ClassValue;
 };
 
 export const ConnectWalletDefaultsContext = createContext<ConnectWalletDefaults>({});
@@ -38,6 +42,8 @@ const buttonStructure = "cursor-pointer flex items-center justify-center gap-2 b
 const buttonAppearance = "rounded-full bg-black text-white hover:opacity-90 dark:bg-white dark:text-black text-sm font-bold sm:text-base px-5 py-3";
 const balanceAppearance = "font-semibold text-sm";
 const addressAppearance = "text-xs font-normal";
+const nameAppearance = "text-sm font-semibold";
+const disconnectAppearance = "flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-black px-3 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 dark:bg-white dark:text-black";
 const imageAppearance = "w-6 h-6";
 
 interface ConnectWalletContextProps {
@@ -59,17 +65,17 @@ const ConnectWalletDialogRegistrationContext = createContext<DialogRegistration 
 
 export function useConnectWallet() {
     const context = useContext(ConnectWalletContext);
-    if (!context) throw new Error("useConnectWallet must be used within <ConnectWallet />");
+    if (!context) throw new Error("useConnectWallet must be used within <ConnectWalletContainer />");
     return context;
 }
 
 export function useConnectWalletDialogRegistration() {
     const register = useContext(ConnectWalletDialogRegistrationContext);
-    if (!register) throw new Error("ConnectWalletDialog must be used within <ConnectWallet />");
+    if (!register) throw new Error("ConnectWalletDialog must be used within <ConnectWalletContainer />");
     return register;
 }
 
-export function ConnectWallet({ children }: { children: React.ReactNode }) {
+export function ConnectWalletContainer({ children }: { children: React.ReactNode }) {
     const { open: openCcc, wallet } = ccc.useCcc();
     const [balance, setBalance] = useState<string>("");
     const [address, setAddress] = useState<string>("");
@@ -160,26 +166,7 @@ export function ConnectWalletButton({
     )
 }
 
-export function ConnectWalletInfoContainer({ children, className
-}: {
-    children: React.ReactNode;
-    className?: ClassValue
-}) {
-    const { open, wallet, isLoading } = useConnectWallet();
-    const defaults = useConnectWalletDefaults();
-
-    if (!wallet) return null;
-    return (
-        <button className={cn(buttonStructure, defaults.infoContainerClassName ?? buttonAppearance, className, {
-            "animate-pulse": isLoading
-        })}
-            onClick={open}>
-            {children}
-        </button>
-    )
-}
-
-export function ConnectWalletInfoImage({ className
+export function ConnectWalletImage({ className
 }: {
     className?: ClassValue
 }) {
@@ -193,7 +180,7 @@ export function ConnectWalletInfoImage({ className
     )
 }
 
-export function ConnectWalletInfoBalance({ className,
+export function ConnectWalletBalance({ className,
     decimalPlaces,
     withCurrency,
 }: {
@@ -226,7 +213,7 @@ export function ConnectWalletInfoBalance({ className,
     )
 }
 
-export function ConnectWalletInfoAddress({ className,
+export function ConnectWalletAddress({ className,
     frontChars,
     endChars,
 }: {
@@ -243,5 +230,42 @@ export function ConnectWalletInfoAddress({ className,
         <span className={cn(defaults.addressClassName ?? addressAppearance, className)}>
             {truncateAddress(address, frontChars ?? defaults.frontChars ?? 10, endChars ?? defaults.endChars ?? 6)}
         </span>
+    )
+}
+
+export function ConnectWalletName({ className }: { className?: ClassValue }) {
+    const { wallet } = useConnectWallet();
+    const defaults = useConnectWalletDefaults();
+
+    if (!wallet) return null;
+
+    return (
+        <span className={cn(defaults.nameClassName ?? nameAppearance, className)}>
+            {wallet.name}
+        </span>
+    )
+}
+
+export function ConnectWalletDisconnect({
+    buttonText,
+    className,
+}: {
+    buttonText?: React.ReactNode;
+    className?: ClassValue;
+}) {
+    const { wallet } = useConnectWallet();
+    const { disconnect } = ccc.useCcc();
+    const defaults = useConnectWalletDefaults();
+
+    if (!wallet) return null;
+
+    return (
+        <button
+            type="button"
+            className={cn(defaults.disconnectClassName ?? disconnectAppearance, className)}
+            onClick={() => { disconnect(); }}
+        >
+            {buttonText ?? "Disconnect"}
+        </button>
     )
 }

@@ -38,10 +38,11 @@ const components: ComponentDoc[] = [
     props: [
       { name: "children", type: "React.ReactNode", detail: "The rest of the app." },
       { name: "defaults.buttonClassName", type: "ClassValue", detail: "Replaces the built-in button colors, radius, and padding. Include dark: utilities if the button should stay that color in dark mode." },
-      { name: "defaults.infoContainerClassName", type: "ClassValue", detail: "Same role for the connected wallet pill." },
       { name: "defaults.imageClassName", type: "ClassValue", detail: "Replaces the default w-6 h-6 on the wallet icon." },
       { name: "defaults.balanceClassName", type: "ClassValue", detail: "Replaces the default font-semibold text-sm on the balance." },
       { name: "defaults.addressClassName", type: "ClassValue", detail: "Replaces the default text-xs font-normal on the address." },
+      { name: "defaults.nameClassName", type: "ClassValue", detail: "Replaces the default text-sm font-semibold on the wallet name." },
+      { name: "defaults.disconnectClassName", type: "ClassValue", detail: "Replaces the built-in Disconnect button." },
       { name: "defaults.decimalPlaces", type: "0–20", detail: "Shared balance precision. Digits are truncated, not rounded. 0 is a real value." },
       { name: "defaults.withCurrency", type: "boolean", detail: "Shows the CKB suffix. Defaults to true when neither the provider nor the component sets it." },
       { name: "defaults.frontChars", type: "number", detail: "Characters kept at the start of the address. Built-in default is 10." },
@@ -56,21 +57,24 @@ const components: ComponentDoc[] = [
       { name: "defaults.dialogPanelClassName", type: "ClassValue", detail: "Replaces the built-in panel on ConnectWalletDialogOverlay." },
       { name: "defaults.dialogTitleClassName", type: "ClassValue", detail: "Replaces the built-in dialog title typography." },
       { name: "defaults.dialogListButtonClassName", type: "ClassValue", detail: "Replaces the built-in wallet, chain, and network buttons." },
-      { name: "defaults.dialogActionClassName", type: "ClassValue", detail: "Replaces the built-in Disconnect and Try again buttons." },
+      { name: "defaults.dialogActionClassName", type: "ClassValue", detail: "Replaces the built-in Try again button." },
+      { name: "defaults.dialogAccountHeaderClassName", type: "ClassValue", detail: "Replaces the built-in account header layout." },
+      { name: "defaults.dialogAccountFooterClassName", type: "ClassValue", detail: "Replaces the built-in account footer layout." },
+      { name: "defaults.dialogCloseClassName", type: "ClassValue", detail: "Replaces the built-in account close button." },
     ],
   },
   {
     id: "connect",
-    name: "ConnectWallet",
+    name: "ConnectWalletContainer",
     summary: "Local provider for one composition. It reads the CCC signer once and shares balance, address, loading, and open() with its children.",
-    example: `<ConnectWallet>
+    example: `<ConnectWalletContainer>
   <ConnectWalletButton />
-  <ConnectWalletInfoContainer className="flex items-center gap-2">
-    <ConnectWalletInfoImage />
-    <ConnectWalletInfoBalance />
-    <ConnectWalletInfoAddress />
-  </ConnectWalletInfoContainer>
-</ConnectWallet>`,
+  <div className="flex items-center gap-2">
+    <ConnectWalletImage />
+    <ConnectWalletBalance />
+    <ConnectWalletAddress />
+  </div>
+</ConnectWalletContainer>`,
     props: [
       { name: "children", type: "React.ReactNode", detail: "The button, the connected info, and any layout you put between them. Must sit under a CCC provider." },
     ],
@@ -78,7 +82,7 @@ const components: ComponentDoc[] = [
   {
     id: "button",
     name: "ConnectWalletButton",
-    summary: "Renders only while no wallet is connected. Clicking it calls open(). A ConnectWalletDialog in the same ConnectWallet receives that click. Without one, CCC's popup opens.",
+    summary: "Renders only while no wallet is connected. Clicking it calls open(). A ConnectWalletDialog in the same ConnectWalletContainer receives that click. Without one, CCC's popup opens.",
     example: `<ConnectWalletButton className="px-4">
   Connect
 </ConnectWalletButton>`,
@@ -88,33 +92,19 @@ const components: ComponentDoc[] = [
     ],
   },
   {
-    id: "container",
-    name: "ConnectWalletInfoContainer",
-    summary: "Renders only after a wallet is connected. The whole pill calls open(). A ConnectWalletDialog in the same ConnectWallet shows the account view. Without one, CCC's popup opens.",
-    example: `<ConnectWalletInfoContainer className="flex items-center gap-3">
-  <ConnectWalletInfoImage />
-  <ConnectWalletInfoBalance />
-  <ConnectWalletInfoAddress />
-</ConnectWalletInfoContainer>`,
-    props: [
-      { name: "children", type: "React.ReactNode", detail: "Your layout for the icon, balance, and address." },
-      { name: "className", type: "ClassValue", detail: "Merged after defaults.infoContainerClassName." },
-    ],
-  },
-  {
     id: "image",
-    name: "ConnectWalletInfoImage",
+    name: "ConnectWalletImage",
     summary: "The wallet icon from wallet.icon. Renders nothing until a wallet is connected.",
-    example: `<ConnectWalletInfoImage className="h-8 w-8" />`,
+    example: `<ConnectWalletImage className="h-8 w-8" />`,
     props: [
       { name: "className", type: "ClassValue", detail: "Merged after defaults.imageClassName. The built-in size is w-6 h-6." },
     ],
   },
   {
     id: "balance",
-    name: "ConnectWalletInfoBalance",
+    name: "ConnectWalletBalance",
     summary: "Formats the signer balance. A set decimalPlaces value truncates instead of rounding.",
-    example: `<ConnectWalletInfoBalance
+    example: `<ConnectWalletBalance
   decimalPlaces={4}
   withCurrency
 />`,
@@ -126,9 +116,9 @@ const components: ComponentDoc[] = [
   },
   {
     id: "address",
-    name: "ConnectWalletInfoAddress",
+    name: "ConnectWalletAddress",
     summary: "Shows the recommended address, shortened with an ellipsis when it is longer than the kept ends.",
-    example: `<ConnectWalletInfoAddress
+    example: `<ConnectWalletAddress
   frontChars={6}
   endChars={4}
 />`,
@@ -139,20 +129,50 @@ const components: ComponentDoc[] = [
     ],
   },
   {
+    id: "name",
+    name: "ConnectWalletName",
+    summary: "The connected wallet’s name. Renders nothing until a wallet is connected. Place it in the page or in the account dialog.",
+    example: `<ConnectWalletName />`,
+    props: [
+      { name: "className", type: "ClassValue", detail: "Merged after defaults.nameClassName. Built-in is text-sm font-semibold." },
+    ],
+  },
+  {
+    id: "disconnect",
+    name: "ConnectWalletDisconnect",
+    summary: "Ends the CCC session. Renders nothing until a wallet is connected. buttonText replaces the visible label.",
+    example: `<ConnectWalletDisconnect buttonText="Sign out" />`,
+    props: [
+      { name: "buttonText", type: "React.ReactNode", detail: "Visible label. Built-in is Disconnect." },
+      { name: "className", type: "ClassValue", detail: "Merged after defaults.disconnectClassName." },
+    ],
+  },
+  {
     id: "dialog",
     name: "ConnectWalletDialog",
-    summary: "Popup state for one composition. It renders no chrome. While it is mounted, open() from the button, the pill, and useConnectWallet() opens this dialog.",
-    example: `<ConnectWallet>
+    summary: "Popup state for one composition. It renders no chrome. While it is mounted, open() from the button and useConnectWallet() opens this dialog.",
+    example: `<ConnectWalletContainer>
   <ConnectWalletButton />
   <ConnectWalletDialog>
     <ConnectWalletDialogOverlay>
       <ConnectWalletDialogWallets />
       <ConnectWalletDialogSigners />
       <ConnectWalletDialogConnecting />
-      <ConnectWalletDialogAccount />
+      <ConnectWalletDialogAccount>
+        <ConnectWalletDialogAccountHeader>
+          <ConnectWalletName />
+          <ConnectWalletDialogAccountClose />
+        </ConnectWalletDialogAccountHeader>
+        <ConnectWalletAddress />
+        <ConnectWalletBalance />
+        <ConnectWalletDialogAccountFooter>
+          <ConnectWalletDisconnect buttonText="Disconnect" />
+          <ConnectWalletSwitchNetwork />
+        </ConnectWalletDialogAccountFooter>
+      </ConnectWalletDialogAccount>
     </ConnectWalletDialogOverlay>
   </ConnectWalletDialog>
-</ConnectWallet>`,
+</ConnectWalletContainer>`,
     props: [
       { name: "children", type: "React.ReactNode", detail: "The overlay and sections, or any custom UI that calls useConnectWalletDialog()." },
     ],
@@ -205,29 +225,84 @@ const components: ComponentDoc[] = [
   {
     id: "dialog-account",
     name: "ConnectWalletDialogAccount",
-    summary: "Connected view: wallet, address, balance, your actions, Disconnect, and network switching when ccc.Provider received clientOptions.",
+    summary: "Account step container. Renders nothing until the dialog is open on the account step and a wallet is connected. Put the header, wallet pieces, and footer inside it.",
     example: `<ConnectWalletDialogAccount>
-  <a href="/settings">Settings</a>
+  <ConnectWalletDialogAccountHeader>
+    <ConnectWalletName />
+    <ConnectWalletDialogAccountClose />
+  </ConnectWalletDialogAccountHeader>
+  <ConnectWalletAddress />
+  <ConnectWalletBalance />
+  <ConnectWalletDialogAccountFooter>
+    <ConnectWalletDisconnect />
+    <ConnectWalletSwitchNetwork />
+  </ConnectWalletDialogAccountFooter>
 </ConnectWalletDialogAccount>`,
     props: [
-      { name: "children", type: "React.ReactNode", detail: "Extra actions, rendered above Disconnect." },
-      { name: "className", type: "ClassValue", detail: "Merged onto the section." },
-      { name: "buttonClassName", type: "ClassValue", detail: "Merged onto Disconnect and the network rows." },
+      { name: "children", type: "React.ReactNode", detail: "The account contents." },
+      { name: "className", type: "ClassValue", detail: "Merged onto the container. Built-in is flex flex-col gap-3." },
+    ],
+  },
+  {
+    id: "dialog-account-header",
+    name: "ConnectWalletDialogAccountHeader",
+    summary: "Account header row. Renders only on the account step.",
+    example: `<ConnectWalletDialogAccountHeader>
+  <ConnectWalletName />
+  <ConnectWalletDialogAccountClose />
+</ConnectWalletDialogAccountHeader>`,
+    props: [
+      { name: "children", type: "React.ReactNode", detail: "Usually the wallet name and the close button." },
+      { name: "className", type: "ClassValue", detail: "Merged after defaults.dialogAccountHeaderClassName." },
+    ],
+  },
+  {
+    id: "dialog-account-close",
+    name: "ConnectWalletDialogAccountClose",
+    summary: "Closes the dialog. The children replace the × glyph. label is the accessible name.",
+    example: `<ConnectWalletDialogAccountClose label="Close" />`,
+    props: [
+      { name: "children", type: "React.ReactNode", detail: "Visible content. Built-in is ×." },
+      { name: "className", type: "ClassValue", detail: "Merged after defaults.dialogCloseClassName." },
+      { name: "label", type: "string", detail: "Accessible name. Built-in is Close." },
+    ],
+  },
+  {
+    id: "dialog-account-footer",
+    name: "ConnectWalletDialogAccountFooter",
+    summary: "Account footer. Renders only on the account step. A usual place for disconnect and switch network.",
+    example: `<ConnectWalletDialogAccountFooter>
+  <ConnectWalletDisconnect buttonText="Sign out" />
+  <ConnectWalletSwitchNetwork />
+</ConnectWalletDialogAccountFooter>`,
+    props: [
+      { name: "children", type: "React.ReactNode", detail: "Footer contents." },
+      { name: "className", type: "ClassValue", detail: "Merged after defaults.dialogAccountFooterClassName." },
+    ],
+  },
+  {
+    id: "switch-network",
+    name: "ConnectWalletSwitchNetwork",
+    summary: "Shows the current network and expands into the clientOptions from ccc.Provider. Renders nothing when there are no options. Must sit inside ConnectWalletDialog.",
+    example: `<ConnectWalletSwitchNetwork />`,
+    props: [
+      { name: "className", type: "ClassValue", detail: "Merged onto the control." },
+      { name: "buttonClassName", type: "ClassValue", detail: "Merged onto each network row after defaults.dialogListButtonClassName." },
     ],
   },
   {
     id: "did",
     name: "ConnectWalletDid",
     summary: "Optional. Looks up the did:ckb identities owned by the connected lock and shares the newest one with its children. Renders nothing before connect, and nothing is fetched unless you render it.",
-    example: `<ConnectWalletInfoContainer className="flex items-center gap-2">
+    example: `<div className="flex items-center gap-2">
   <ConnectWalletDid>
     <ConnectWalletDidAvatar />
     <div className="flex flex-col items-start">
-      <ConnectWalletDidName fallback={<ConnectWalletInfoAddress />} />
+      <ConnectWalletDidName fallback={<ConnectWalletAddress />} />
       <ConnectWalletDidId />
     </div>
   </ConnectWalletDid>
-</ConnectWalletInfoContainer>`,
+</div>`,
     props: [
       { name: "children", type: "React.ReactNode", detail: "The DID pieces, or anything that calls useConnectWalletDid()." },
       { name: "resolve", type: "DidResolver", detail: "Replace the lookup. Receives { client, signer, lock, address } and returns DidProfile[]. The default lists live did:ckb cells locked by the wallet." },
@@ -241,7 +316,7 @@ const components: ComponentDoc[] = [
     summary: "The avatar from services.profile.avatar in the DID document. Renders the fallback when the document has no avatar.",
     example: `<ConnectWalletDidAvatar
   className="h-8 w-8"
-  fallback={<ConnectWalletInfoImage />}
+  fallback={<ConnectWalletImage />}
 />`,
     props: [
       { name: "className", type: "ClassValue", detail: "Merged after defaults.didAvatarClassName. Built-in is w-6 h-6 rounded-full object-cover." },
@@ -253,7 +328,7 @@ const components: ComponentDoc[] = [
     name: "ConnectWalletDidName",
     summary: "The display name from services.profile.displayName. Renders the fallback when the document has no name.",
     example: `<ConnectWalletDidName
-  fallback={<ConnectWalletInfoAddress frontChars={6} endChars={4} />}
+  fallback={<ConnectWalletAddress frontChars={6} endChars={4} />}
 />`,
     props: [
       { name: "className", type: "ClassValue", detail: "Merged after defaults.didNameClassName. Built-in is font-semibold text-sm." },
@@ -267,7 +342,7 @@ const components: ComponentDoc[] = [
     example: `<ConnectWalletDidId
   frontChars={14}
   endChars={6}
-  fallback={<ConnectWalletInfoAddress />}
+  fallback={<ConnectWalletAddress />}
 />`,
     props: [
       { name: "frontChars", type: "number", detail: "Overrides defaults.didFrontChars. Built-in default is 14, which keeps did:ckb: plus six characters." },

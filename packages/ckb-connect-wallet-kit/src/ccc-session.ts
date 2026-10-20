@@ -59,7 +59,7 @@ export function readClientOptions(element: CccConnectorElement): ConnectWalletCl
 export function adoptConnection(walletName: string, signerName: string) {
     const element = findConnector();
     if (!element) {
-        throw new Error("ccc-connector is not mounted. Mount ccc.Provider above ConnectWallet.");
+        throw new Error("ccc-connector is not mounted. Mount ccc.Provider above ConnectWalletContainer.");
     }
 
     try {

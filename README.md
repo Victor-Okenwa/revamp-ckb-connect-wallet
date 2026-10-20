@@ -71,7 +71,7 @@ No Tailwind `@source` rule is required for this path. The classes live in your o
 
 ## Quick Start
 
-Mount your own `ccc.Provider`. `ConnectWallet` and `ConnectWalletKitProvider` both call `ccc.useCcc()`, so they must sit under that provider. The kit never mounts CCC. Leave off `className`, formatting props, and `defaults` to use the built-in styles.
+Mount your own `ccc.Provider`. `ConnectWalletContainer` and `ConnectWalletKitProvider` both call `ccc.useCcc()`, so they must sit under that provider. The kit never mounts CCC. Leave off `className`, formatting props, and `defaults` to use the built-in styles.
 
 The imports below are the package path. If you copied the source, import the provider from `./components/connect-wallet-kit-provider` and the pieces from `./components/connect-wallet`.
 
@@ -80,12 +80,11 @@ The imports below are the package path. If you copied the source, import the pro
 ```tsx
 import { ccc } from "@ckb-ccc/connector-react";
 import {
-  ConnectWallet,
+  ConnectWalletContainer,
   ConnectWalletButton,
-  ConnectWalletInfoContainer,
-  ConnectWalletInfoImage,
-  ConnectWalletInfoBalance,
-  ConnectWalletInfoAddress,
+  ConnectWalletImage,
+  ConnectWalletBalance,
+  ConnectWalletAddress,
 } from "ckb-connect-wallet-kit";
 
 export function App() {
@@ -97,14 +96,14 @@ export function App() {
         { name: "CKB Mainnet", client: new ccc.ClientPublicMainnet() },
       ]}
     >
-      <ConnectWallet>
+      <ConnectWalletContainer>
         <ConnectWalletButton />
-        <ConnectWalletInfoContainer>
-          <ConnectWalletInfoImage />
-          <ConnectWalletInfoBalance />
-          <ConnectWalletInfoAddress />
-        </ConnectWalletInfoContainer>
-      </ConnectWallet>
+        <div>
+          <ConnectWalletImage />
+          <ConnectWalletBalance />
+          <ConnectWalletAddress />
+        </div>
+      </ConnectWalletContainer>
     </ccc.Provider>
   );
 }
@@ -116,12 +115,11 @@ export function App() {
 import { ccc } from "@ckb-ccc/connector-react";
 import {
   ConnectWalletKitProvider,
-  ConnectWallet,
+  ConnectWalletContainer,
   ConnectWalletButton,
-  ConnectWalletInfoContainer,
-  ConnectWalletInfoImage,
-  ConnectWalletInfoBalance,
-  ConnectWalletInfoAddress,
+  ConnectWalletImage,
+  ConnectWalletBalance,
+  ConnectWalletAddress,
 } from "ckb-connect-wallet-kit";
 
 export function App() {
@@ -134,14 +132,14 @@ export function App() {
       ]}
     >
       <ConnectWalletKitProvider>
-        <ConnectWallet>
+        <ConnectWalletContainer>
           <ConnectWalletButton>Connect</ConnectWalletButton>
-          <ConnectWalletInfoContainer>
-            <ConnectWalletInfoImage />
-            <ConnectWalletInfoBalance decimalPlaces={4} withCurrency />
-            <ConnectWalletInfoAddress frontChars={6} endChars={4} />
-          </ConnectWalletInfoContainer>
-        </ConnectWallet>
+          <div>
+            <ConnectWalletImage />
+            <ConnectWalletBalance decimalPlaces={4} withCurrency />
+            <ConnectWalletAddress frontChars={6} endChars={4} />
+          </div>
+        </ConnectWalletContainer>
       </ConnectWalletKitProvider>
     </ccc.Provider>
   );
@@ -156,12 +154,11 @@ A prop on one piece overrides the matching default. `LayoutProvider` is the prev
 import { ccc } from "@ckb-ccc/connector-react";
 import {
   ConnectWalletKitProvider,
-  ConnectWallet,
+  ConnectWalletContainer,
   ConnectWalletButton,
-  ConnectWalletInfoContainer,
-  ConnectWalletInfoImage,
-  ConnectWalletInfoBalance,
-  ConnectWalletInfoAddress,
+  ConnectWalletImage,
+  ConnectWalletBalance,
+  ConnectWalletAddress,
 } from "ckb-connect-wallet-kit";
 
 export function App() {
@@ -176,7 +173,6 @@ export function App() {
       <ConnectWalletKitProvider
         defaults={{
           buttonClassName: "rounded-md bg-blue-600 text-white dark:bg-blue-600 dark:text-white",
-          infoContainerClassName: "rounded-md bg-blue-600 text-white dark:bg-blue-600 dark:text-white",
           decimalPlaces: 4,
           withCurrency: true,
           frontChars: 6,
@@ -184,16 +180,16 @@ export function App() {
           buttonLabel: "Connect Wallet",
         }}
       >
-        <ConnectWallet>
+        <ConnectWalletContainer>
           <ConnectWalletButton />
-          <ConnectWalletInfoContainer className="flex items-center gap-2">
-            <ConnectWalletInfoImage />
+          <div className="flex items-center gap-2">
+            <ConnectWalletImage />
             <div className="flex flex-col items-start">
-              <ConnectWalletInfoBalance />
-              <ConnectWalletInfoAddress />
+              <ConnectWalletBalance />
+              <ConnectWalletAddress />
             </div>
-          </ConnectWalletInfoContainer>
-        </ConnectWallet>
+          </div>
+        </ConnectWalletContainer>
       </ConnectWalletKitProvider>
     </ccc.Provider>
   );
@@ -208,29 +204,28 @@ The display name and avatar come from `services.profile` in the DID document (`d
 
 ```tsx
 import {
-  ConnectWallet,
+  ConnectWalletContainer,
   ConnectWalletButton,
   ConnectWalletDid,
   ConnectWalletDidAvatar,
   ConnectWalletDidId,
   ConnectWalletDidName,
-  ConnectWalletInfoAddress,
-  ConnectWalletInfoContainer,
-  ConnectWalletInfoImage,
+  ConnectWalletAddress,
+  ConnectWalletImage,
 } from "ckb-connect-wallet-kit";
 
-<ConnectWallet>
+<ConnectWalletContainer>
   <ConnectWalletButton />
-  <ConnectWalletInfoContainer className="flex items-center gap-2">
+  <div className="flex items-center gap-2">
     <ConnectWalletDid>
-      <ConnectWalletDidAvatar fallback={<ConnectWalletInfoImage />} />
+      <ConnectWalletDidAvatar fallback={<ConnectWalletImage />} />
       <div className="flex flex-col items-start">
-        <ConnectWalletDidName fallback={<ConnectWalletInfoAddress frontChars={6} endChars={4} />} />
+        <ConnectWalletDidName fallback={<ConnectWalletAddress frontChars={6} endChars={4} />} />
         <ConnectWalletDidId />
       </div>
     </ConnectWalletDid>
-  </ConnectWalletInfoContainer>
-</ConnectWallet>
+  </div>
+</ConnectWalletContainer>
 ```
 
 - `resolve` replaces the lookup: `({ client, signer, lock, address }) => Promise<DidProfile[]>`.
@@ -243,25 +238,34 @@ Creating or editing a DID is a signed CKB transaction and is outside this kit.
 
 ## Custom popup
 
-Mount `ConnectWalletDialog` inside `ConnectWallet` and the button and pill call that popup. Leave it out and they keep opening CCC.
+Mount `ConnectWalletDialog` inside `ConnectWalletContainer`. The connect button, and any element that calls `open()` from `useConnectWallet()`, opens that popup. Leave the dialog out and those calls keep opening CCC.
 
-`ConnectWalletDialog` renders no chrome. `ConnectWalletDialogOverlay` is the optional centered modal. The wallet, chain, connecting, and account sections each render only on their own step. Skip any of them, or skip the overlay, and build the layout with `useConnectWalletDialog()`.
+`ConnectWalletDialog` renders no chrome. `ConnectWalletDialogOverlay` is the optional centered modal. The wallet, chain, and connecting sections each render only on their own step. `ConnectWalletDialogAccount` is a container: put a header, close button, wallet pieces, and footer inside it.
 
 ```tsx
-<ConnectWallet>
+<ConnectWalletContainer>
   <ConnectWalletButton />
   <ConnectWalletDialog>
     <ConnectWalletDialogOverlay>
       <ConnectWalletDialogWallets />
       <ConnectWalletDialogSigners />
       <ConnectWalletDialogConnecting />
-      <ConnectWalletDialogAccount />
+      <ConnectWalletDialogAccount>
+        <ConnectWalletDialogAccountHeader>
+          <ConnectWalletName />
+          <ConnectWalletDialogAccountClose />
+        </ConnectWalletDialogAccountHeader>
+        <ConnectWalletDialogAccountFooter>
+          <ConnectWalletDisconnect buttonText="Disconnect" />
+          <ConnectWalletSwitchNetwork />
+        </ConnectWalletDialogAccountFooter>
+      </ConnectWalletDialogAccount>
     </ConnectWalletDialogOverlay>
   </ConnectWalletDialog>
-</ConnectWallet>
+</ConnectWalletContainer>
 ```
 
-`ConnectWalletDialogAccount` renders `children` above Disconnect, so extra actions sit in the default account view. Shared classes are `dialogOverlayClassName`, `dialogPanelClassName`, `dialogTitleClassName`, `dialogListButtonClassName`, and `dialogActionClassName` on `ConnectWalletKitProvider` `defaults`.
+Shared classes on `ConnectWalletKitProvider` `defaults` include `dialogOverlayClassName`, `dialogPanelClassName`, `dialogTitleClassName`, `dialogListButtonClassName`, `dialogActionClassName`, `dialogAccountHeaderClassName`, `dialogAccountFooterClassName`, `dialogCloseClassName`, `nameClassName`, and `disconnectClassName`.
 
 ## Development
 

@@ -1,6 +1,6 @@
 # ARCHITECTURE.md
 
-**ConnectWallet Compound Component – Full Architecture & Documentation**
+**ConnectWalletContainer Compound Component – Full Architecture & Documentation**
 **Version:** 1.1
 **Date:** April 30, 2026
 **Library:** `@ckb-ccc/connector-react` (Nervos CKB ecosystem)
@@ -15,7 +15,7 @@
 3. [Architecture Diagram](#3-architecture-diagram)
 4. [Core Files](#4-core-files)
 5. [API Reference](#5-api-reference)
-    - 5.1 [Provider – `ConnectWallet`](#51-provider---connectwallet)
+    - 5.1 [Provider – `ConnectWalletContainer`](#51-provider---connectwallet)
     - 5.2 [Hook – `useConnectWallet`](#52-hook---useconnectwallet)
     - 5.3 [Sub-Components](#53-sub-components)
 6. [Feature Deep Dive](#6-feature-deep-dive)  
@@ -51,7 +51,7 @@ This module provides a modern **compound component pattern** built on React Cont
 
 ## 2. Why Compound Components?
 
-| Aspect                     | Old Monolithic `ConnectWallet`                  | New Compound `ConnectWallet`                          | Benefit |
+| Aspect                     | Old Monolithic `ConnectWalletContainer`                  | New Compound `ConnectWalletContainer`                          | Benefit |
 |---------------------------|------------------------------------------------|-------------------------------------------------------|---------|
 | Styling / Layout          | Hard-coded JSX                                 | Fully composable children + `className`               | Any UI design possible |
 | Reusability               | Single component only                          | Multiple sub-components + hook                        | Use in header, modal, dropdown, etc. |
@@ -65,18 +65,18 @@ This module provides a modern **compound component pattern** built on React Cont
 
 ## 3. Architecture Diagram (text)
 <pre>
-ConnectWallet (Provider)
+ConnectWalletContainer (Provider)
 ├── Context (ConnectWalletContext)
 
 ├── useConnectWallet() hook
 
 ├── ConnectWalletButton          → renders only when disconnected
-├── ConnectWalletInfoContainer   → renders only when connected
-│     ├── ConnectWalletInfoImage
-│     ├── ConnectWalletInfoBalance   (formatting options)
-│     └── ConnectWalletInfoAddress   (truncation options)
-
-└── (Users can add their own custom sub-components using the hook)
+├── ConnectWalletImage           → wallet icon, any parent element
+├── ConnectWalletBalance         → formatting options
+├── ConnectWalletAddress         → truncation options
+├── ConnectWalletName            → connected wallet name
+├── ConnectWalletDisconnect      → optional buttonText
+└── (any element, plus useConnectWallet().open())
 </pre>
 
 
@@ -91,8 +91,8 @@ All sub-components read from the shared context automatically. The provider hand
 - **`packages/ckb-connect-wallet-kit/src/utils.ts`** – `cn` (clsx + tailwind-merge) and `truncateAddress` (internal, not exported)
 - **`packages/ckb-connect-wallet-kit/src/connect-wallet-kit-provider.tsx`** – defaults provider. `defaults` sets classes, decimal places, address truncation, and the button label. It calls `ccc.useCcc()` and must sit under the app’s `ccc.Provider`. It does not mount CCC. `LayoutProvider` is the same component.
 - **`packages/ckb-connect-wallet-kit/src/did-ckb.ts`** – did:ckb lookup. Lists the live DID Metadata Cells locked by the wallet (`findCells` with the did:ckb type script as filter), decodes the molecule `DidCkbData` union and the CBOR document, and reads `services.profile` (`displayName`, `avatar`, `bio`) plus `alsoKnownAs`. Mainnet and testnet code hashes are bundled; CCC's `KnownScript.DidCkb` is used when present.
-- **`packages/ckb-connect-wallet-kit/src/connect-wallet-did.tsx`** – optional `ConnectWalletDid` provider plus `ConnectWalletDidAvatar`, `ConnectWalletDidName`, `ConnectWalletDidId`, and `useConnectWalletDid`. Fetches only when rendered, under `ConnectWallet`.
-- **`packages/ckb-connect-wallet-kit/src/connect-wallet-dialog.tsx`** – optional popup. `ConnectWalletDialog` holds the state and renders no chrome. `ConnectWalletDialogOverlay` is the centered modal. `ConnectWalletDialogWallets`, `ConnectWalletDialogSigners`, `ConnectWalletDialogConnecting`, and `ConnectWalletDialogAccount` each render on their own step. `useConnectWalletDialog()` is the escape hatch for a custom layout. While the dialog is mounted, `open()` from that `ConnectWallet` opens it. Otherwise `open()` still opens CCC.
+- **`packages/ckb-connect-wallet-kit/src/connect-wallet-did.tsx`** – optional `ConnectWalletDid` provider plus `ConnectWalletDidAvatar`, `ConnectWalletDidName`, `ConnectWalletDidId`, and `useConnectWalletDid`. Fetches only when rendered, under `ConnectWalletContainer`.
+- **`packages/ckb-connect-wallet-kit/src/connect-wallet-dialog.tsx`** – optional popup. `ConnectWalletDialog` holds the state and renders no chrome. `ConnectWalletDialogOverlay` is the centered modal. The wallet, signer, and connecting sections render on their own steps. `ConnectWalletDialogAccount` is a container, with `ConnectWalletDialogAccountHeader`, `ConnectWalletDialogAccountClose`, and `ConnectWalletDialogAccountFooter`. `useConnectWalletDialog()` is the escape hatch for a custom layout. While the dialog is mounted, `open()` from that `ConnectWalletContainer` opens it. Otherwise `open()` still opens CCC.
 - **`packages/ckb-connect-wallet-kit/src/ccc-session.ts`** – reads the wallet list off CCC's `<ccc-connector>` element and writes the chosen session back so `ccc.useSigner()` updates. Not a public API.
 
 Consumers install `ckb-connect-wallet-kit` and import from that package name. React, React DOM, and `@ckb-ccc/connector-react` are peer dependencies.
@@ -101,12 +101,12 @@ Consumers install `ckb-connect-wallet-kit` and import from that package name. Re
 
 ## 5. API Reference
 
-### 5.1 Provider – `ConnectWallet`
+### 5.1 Provider – `ConnectWalletContainer`
 
 ```tsx
-<ConnectWallet>
+<ConnectWalletContainer>
   {/* All sub-components must be children of this provider */}
-</ConnectWallet>
+</ConnectWalletContainer>
 ```
 
 __Responsibilities:__
@@ -123,7 +123,7 @@ __Responsibilities:__
 const { isLoading, balance, setBalance, address, setAddress, open, wallet } = useConnectWallet();
 ```
 
-- Must be used inside `<ConnectWallet>`
+- Must be used inside `<ConnectWalletContainer>`
 - Throws clear error if used outside
 - Exposes everything for advanced custom components
 - Includes loading state for UI feedback during data fetching
@@ -133,41 +133,43 @@ __ConnectWalletButton__
 
 - Renders only when not connected
 - Default modern black/white styling with dark mode
-- onClick={open} from CCC
+- Calls `open()` from the kit. That opens `ConnectWalletDialog` when one is mounted, and CCC otherwise
 - Accepts className?: ClassValue
 - Shows loading animation when fetching data
 
-__ConnectWalletInfoContainer__
-
-- Renders only when connected
-- Clickable wallet pill `(onClick={open})`
-- Wraps your custom connected UI
-- Accepts className?: ClassValue
-- Shows loading animation when fetching data
-
-__ConnectWalletInfoImage__
+__ConnectWalletImage__
 
 Renders wallet icon (wallet.icon)
 Accepts className?: ClassValue
 
-__ConnectWalletInfoBalance__
+__ConnectWalletBalance__
 
 ```tsx
-<ConnectWalletInfoBalance
+<ConnectWalletBalance
   decimalPlaces={4}        // 0–20 (type-safe)
   withCurrency={true}      // show/hide " CKB"
   className="text-lg font-bold"
 />
 ```
 
-__ConnectWalletInfoAddress__
+__ConnectWalletAddress__
 
 ```tsx
-<ConnectWalletInfoAddress
+<ConnectWalletAddress
   frontChars={8}
   endChars={6}
   className="font-mono"
 />
+```
+
+__ConnectWalletName__
+
+Renders `wallet.name`. Accepts `className?: ClassValue`.
+
+__ConnectWalletDisconnect__
+
+```tsx
+<ConnectWalletDisconnect buttonText="Sign out" />
 ```
 
 ## 6. Feature Deep Dive
@@ -200,14 +202,14 @@ decimalPlaces?: DecimalPlaces (type 0 | 1 | ... | 20)`
 ### 6.5 Loading State
 
 - `isLoading` state managed in context, set to true during data fetching
-- Button and info container components show `animate-pulse` when loading
+- `ConnectWalletButton` shows `animate-pulse` when loading
+- A custom wrapper can read `isLoading` from `useConnectWallet()` and pulse itself
 - Automatically handled during address and balance fetching
-- Provides visual feedback to users during async operations
 
 ## 7. Data Flow & Performance
 
 - User clicks button → `open()` from the kit context
-- If `ConnectWalletDialog` is mounted in that `ConnectWallet`, the kit popup opens
+- If `ConnectWalletDialog` is mounted in that `ConnectWalletContainer`, the kit popup opens
 - Otherwise `open()` is CCC's `open()`
 - CCC provides new signer
 - Loading state set to true
@@ -231,51 +233,50 @@ __Benefits:__
 ## 9. Migration Guide (Old → New)
 __Old (monolithic):__
 ```tsx
-<ConnectWallet />
+<ConnectWalletContainer />
 ```
 
 __New (compound):__
 ```tsx
-<ConnectWallet>
+<ConnectWalletContainer>
   <ConnectWalletButton className="..." />
 
-  <ConnectWalletInfoContainer className="...">
-    <ConnectWalletInfoImage />
+  <div className="...">
+    <ConnectWalletImage />
     <div className="flex flex-col items-start">
-      <ConnectWalletInfoBalance decimalPlaces={4} withCurrency />
-      <ConnectWalletInfoAddress frontChars={6} endChars={4} />
+      <ConnectWalletBalance decimalPlaces={4} withCurrency />
+      <ConnectWalletAddress frontChars={6} endChars={4} />
     </div>
-  </ConnectWalletInfoContainer>
-</ConnectWallet>
+  </div>
+</ConnectWalletContainer>
 ```
 
 10. Example Usage (Real-world Header)
 
 ```tsx
 import {
-  ConnectWallet,
+  ConnectWalletContainer,
   ConnectWalletButton,
-  ConnectWalletInfoContainer,
-  ConnectWalletInfoImage,
-  ConnectWalletInfoBalance,
-  ConnectWalletInfoAddress,
+  ConnectWalletImage,
+  ConnectWalletBalance,
+  ConnectWalletAddress,
 } from 'ckb-connect-wallet-kit';
 
 export default function Header() {
   return (
-    <ConnectWallet>
+    <ConnectWalletContainer>
       <div className="flex items-center gap-4">
         <ConnectWalletButton className="px-6 py-2.5" />
 
-        <ConnectWalletInfoContainer className="px-4 gap-3">
-          <ConnectWalletInfoImage className="mr-1" />
+        <div className="px-4 gap-3">
+          <ConnectWalletImage className="mr-1" />
           <div className="flex flex-col">
-            <ConnectWalletInfoBalance decimalPlaces={4} withCurrency />
-            <ConnectWalletInfoAddress frontChars={6} endChars={4} />
+            <ConnectWalletBalance decimalPlaces={4} withCurrency />
+            <ConnectWalletAddress frontChars={6} endChars={4} />
           </div>
-        </ConnectWalletInfoContainer>
+        </div>
       </div>
-    </ConnectWallet>
+    </ConnectWalletContainer>
   );
 }
 ```

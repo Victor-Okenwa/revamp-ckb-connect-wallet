@@ -11,9 +11,6 @@ import {
     readWallets,
 } from "./ccc-session";
 import {
-    ConnectWalletInfoAddress,
-    ConnectWalletInfoBalance,
-    ConnectWalletInfoImage,
     useConnectWallet,
     useConnectWalletDefaults,
     useConnectWalletDialogRegistration,
@@ -27,6 +24,9 @@ const dialogListButtonAppearance = "flex w-full cursor-pointer items-center gap-
 const dialogActionAppearance = "flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-black px-3 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-default disabled:opacity-60 dark:bg-white dark:text-black";
 const dialogIconButtonAppearance = "flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-lg leading-none text-black/70 hover:bg-black/5 dark:text-white/70 dark:hover:bg-white/10";
 const dialogMutedAppearance = "text-center text-xs leading-5 text-black/60 dark:text-white/60";
+const dialogAccountHeaderAppearance = "flex items-center justify-between gap-2";
+const dialogAccountFooterAppearance = "flex flex-col gap-2";
+const switchNetworkAppearance = "cursor-pointer text-center text-xs leading-5 text-black/60 underline-offset-2 hover:underline dark:text-white/60";
 
 let scrollLocks = 0;
 
@@ -107,7 +107,7 @@ function clientsChanged(current: ConnectWalletClientOption[], next: ConnectWalle
 
 /**
  * Popup state for one composition. Renders no chrome.
- * While this is mounted, `open()` from the button, the pill, and `useConnectWallet()` opens this dialog.
+ * While this is mounted, `open()` from the button and `useConnectWallet()` opens this dialog.
  * Leave it out and those clicks keep opening CCC's popup.
  */
 export function ConnectWalletDialog({ children }: { children?: React.ReactNode }) {
@@ -598,92 +598,151 @@ export function ConnectWalletDialogConnecting({
     );
 }
 
+function accountStep(status: ConnectWalletDialogStatus) {
+    return status === "account" || status === "networks";
+}
+
+/** Account step shell. Put the header, close button, wallet pieces, and footer inside it. */
 export function ConnectWalletDialogAccount({
     children,
     className,
-    buttonClassName,
 }: {
-    /** Extra actions, rendered above Disconnect. */
     children?: React.ReactNode;
     className?: ClassValue;
-    /** Merged onto Disconnect and the network rows, after the matching default. */
+}) {
+    const dialog = useConnectWalletDialog();
+    if (!dialog.isOpen || !accountStep(dialog.status) || !dialog.wallet) return null;
+
+    return (
+        <div className={cn("flex flex-col gap-3", className)}>
+            {children}
+        </div>
+    );
+}
+
+export function ConnectWalletDialogAccountHeader({
+    children,
+    className,
+}: {
+    children?: React.ReactNode;
+    className?: ClassValue;
+}) {
+    const dialog = useConnectWalletDialog();
+    const defaults = useConnectWalletDefaults();
+    if (!dialog.isOpen || !accountStep(dialog.status)) return null;
+
+    return (
+        <header className={cn(defaults.dialogAccountHeaderClassName ?? dialogAccountHeaderAppearance, className)}>
+            {children}
+        </header>
+    );
+}
+
+export function ConnectWalletDialogAccountClose({
+    children,
+    className,
+    label = "Close",
+}: {
+    children?: React.ReactNode;
+    className?: ClassValue;
+    /** Accessible name when the visible content is an icon. */
+    label?: string;
+}) {
+    const dialog = useConnectWalletDialog();
+    const defaults = useConnectWalletDefaults();
+    if (!dialog.isOpen || !accountStep(dialog.status)) return null;
+
+    return (
+        <button
+            type="button"
+            className={cn(defaults.dialogCloseClassName ?? dialogIconButtonAppearance, className)}
+            aria-label={label}
+            onClick={dialog.close}
+        >
+            {children ?? "×"}
+        </button>
+    );
+}
+
+export function ConnectWalletDialogAccountFooter({
+    children,
+    className,
+}: {
+    children?: React.ReactNode;
+    className?: ClassValue;
+}) {
+    const dialog = useConnectWalletDialog();
+    const defaults = useConnectWalletDefaults();
+    if (!dialog.isOpen || !accountStep(dialog.status)) return null;
+
+    return (
+        <footer className={cn(defaults.dialogAccountFooterClassName ?? dialogAccountFooterAppearance, className)}>
+            {children}
+        </footer>
+    );
+}
+
+export function ConnectWalletSwitchNetwork({
+    className,
+    buttonClassName,
+}: {
+    className?: ClassValue;
+    /** Merged onto each network row after `defaults.dialogListButtonClassName`. */
     buttonClassName?: ClassValue;
 }) {
     const dialog = useConnectWalletDialog();
     const defaults = useConnectWalletDefaults();
-    const [copied, setCopied] = useState(false);
-    const copyTimer = useRef<number | undefined>(undefined);
+    const [expanded, setExpanded] = useState(false);
 
-    useEffect(() => () => window.clearTimeout(copyTimer.current), []);
+    useEffect(() => {
+        if (!dialog.isOpen) setExpanded(false);
+    }, [dialog.isOpen]);
 
-    if (!dialog.isOpen || (dialog.status !== "account" && dialog.status !== "networks") || !dialog.wallet) return null;
+    if (!dialog.isOpen || !accountStep(dialog.status) || !dialog.wallet || dialog.clientOptions.length === 0) return null;
 
-    const listClass = listButtonClass(buttonClassName, defaults.dialogListButtonClassName);
-    const actionClass = cn(defaults.dialogActionClassName ?? dialogActionAppearance, buttonClassName);
+    const current = dialog.clientOptions.find((option) => option.client === dialog.client)
+        ?? dialog.clientOptions.find((option) => option.client.addressPrefix === dialog.client.addressPrefix);
+    const networkName = current?.name
+        ?? (dialog.client.addressPrefix === "ckb" ? "Mainnet" : dialog.client.addressPrefix === "ckt" ? "Testnet" : dialog.client.addressPrefix);
 
-    if (dialog.status === "networks") {
-        const current = dialog.clientOptions.find((option) => option.client === dialog.client)
-            ?? dialog.clientOptions.find((option) => option.client.addressPrefix === dialog.client.addressPrefix);
+    if (!expanded) {
         return (
-            <DialogFrame title="Select Network" onBack={dialog.back} className={className}>
-                <ul className="flex flex-col gap-2">
-                    {dialog.clientOptions.map((option) => {
-                        const selected = option === current;
-                        return (
-                            <li key={option.name}>
-                                <button
-                                    type="button"
-                                    className={listClass}
-                                    aria-current={selected ? "true" : undefined}
-                                    onClick={() => {
-                                        dialog.setClient(option.client);
-                                        dialog.back();
-                                    }}
-                                >
-                                    {option.icon ? <img src={option.icon} alt="" className="h-8 w-8 shrink-0 rounded-lg" /> : null}
-                                    <span className="min-w-0 flex-1 truncate">{option.name}</span>
-                                    {selected ? <span className="text-xs font-normal">Current</span> : null}
-                                </button>
-                            </li>
-                        );
-                    })}
-                </ul>
-            </DialogFrame>
+            <button
+                type="button"
+                className={cn(switchNetworkAppearance, className)}
+                onClick={() => setExpanded(true)}
+            >
+                {networkName} · Switch network
+            </button>
         );
     }
 
-    const networkName = dialog.clientOptions.find((option) => option.client === dialog.client)?.name
-        ?? dialog.clientOptions.find((option) => option.client.addressPrefix === dialog.client.addressPrefix)?.name
-        ?? (dialog.client.addressPrefix === "ckb" ? "Mainnet" : dialog.client.addressPrefix === "ckt" ? "Testnet" : dialog.client.addressPrefix);
-
-    const copyAddress = () => {
-        if (!dialog.address) return;
-        void navigator.clipboard.writeText(dialog.address).then(() => {
-            setCopied(true);
-            window.clearTimeout(copyTimer.current);
-            copyTimer.current = window.setTimeout(() => setCopied(false), 1500);
-        }).catch(() => setCopied(false));
-    };
+    const listClass = listButtonClass(buttonClassName, defaults.dialogListButtonClassName);
 
     return (
-        <DialogFrame title={dialog.wallet.name} className={className}>
-            <div className="flex flex-col items-center gap-2 py-1">
-                <ConnectWalletInfoImage className="h-16 w-16 rounded-2xl" />
-                <button type="button" className="cursor-pointer text-center" aria-label={copied ? "Copied address" : "Copy address"} onClick={copyAddress}>
-                    <ConnectWalletInfoAddress />
-                    <span className={cn(dialogMutedAppearance, "mt-1 block")}>{copied ? "Copied" : "Copy address"}</span>
-                </button>
-                <ConnectWalletInfoBalance />
-            </div>
-            {children}
-            <button type="button" className={actionClass} onClick={() => dialog.disconnect()}>
-                Disconnect
-            </button>
-            {dialog.clientOptions.length > 0 ? (
-                <button type="button" className={cn(dialogMutedAppearance, "cursor-pointer")} onClick={dialog.showNetworks}>
-                    {networkName} · Switch network
-                </button>
-            ) : null}
-        </DialogFrame>
+        <div className={cn("flex flex-col gap-2", className)}>
+            <ul className="flex flex-col gap-2">
+                {dialog.clientOptions.map((option) => {
+                    const selected = option === current;
+                    return (
+                        <li key={option.name}>
+                            <button
+                                type="button"
+                                className={listClass}
+                                aria-current={selected ? "true" : undefined}
+                                onClick={() => {
+                                    dialog.setClient(option.client);
+                                    setExpanded(false);
+                                }}
+                            >
+                                {option.icon ? <img src={option.icon} alt="" className="h-8 w-8 shrink-0 rounded-lg" /> : null}
+                                <span className="min-w-0 flex-1 truncate">{option.name}</span>
+                                {selected ? <span className="text-xs font-normal">Current</span> : null}
+                            </button>
+                        </li>
+                    );
+                })}
+            </ul>
+        </div>
     );
 }

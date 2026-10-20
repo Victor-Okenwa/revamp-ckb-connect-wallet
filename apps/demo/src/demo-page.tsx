@@ -1,22 +1,31 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { ccc } from "@ckb-ccc/connector-react";
 import {
-  ConnectWallet,
+  ConnectWalletContainer,
   ConnectWalletButton,
   ConnectWalletDid,
   ConnectWalletDidAvatar,
   ConnectWalletDidId,
   ConnectWalletDidName,
-  ConnectWalletInfoAddress,
-  ConnectWalletInfoBalance,
-  ConnectWalletInfoContainer,
-  ConnectWalletInfoImage,
+  ConnectWalletAddress,
+  ConnectWalletBalance,
+  ConnectWalletImage,
+  useConnectWallet,
   useConnectWalletDid,
 } from "ckb-connect-wallet-kit";
 import { CodeBlock } from "./code-block";
 import { WalletDialog } from "./wallet-dialog";
 
 type DecimalPlaces = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20;
+
+function OpenAccount({ className, children }: { className: string; children: ReactNode }) {
+  const { open } = useConnectWallet();
+  return (
+    <button type="button" className={`${className} cursor-pointer`} onClick={() => { open(); }}>
+      {children}
+    </button>
+  );
+}
 
 function DidStatus() {
   const { dids, did, isLoading, error } = useConnectWalletDid();
@@ -56,47 +65,51 @@ export function DemoPage() {
     ].join(" ");
     const addressProps = `frontChars={${frontChars}} endChars={${endChars}}`;
 
+    const dialog = `<ConnectWalletDialog>
+    <ConnectWalletDialogOverlay>
+      <ConnectWalletDialogWallets />
+      <ConnectWalletDialogSigners />
+      <ConnectWalletDialogConnecting />
+      <ConnectWalletDialogAccount>
+        <ConnectWalletDialogAccountHeader>
+          <ConnectWalletName />
+          <ConnectWalletDialogAccountClose />
+        </ConnectWalletDialogAccountHeader>
+        <ConnectWalletDialogAccountFooter>
+          <ConnectWalletDisconnect buttonText="Disconnect" />
+          <ConnectWalletSwitchNetwork />
+        </ConnectWalletDialogAccountFooter>
+      </ConnectWalletDialogAccount>
+    </ConnectWalletDialogOverlay>
+  </ConnectWalletDialog>`;
+
     if (showDid) {
-      return `<ConnectWallet>
+      return `<ConnectWalletContainer>
   <ConnectWalletButton />
-  <ConnectWalletInfoContainer className="${containerClass}">
+  <button type="button" className="${containerClass}" onClick={() => open()}>
     <ConnectWalletDid>
-      <ConnectWalletDidAvatar fallback={<ConnectWalletInfoImage />} />
+      <ConnectWalletDidAvatar fallback={<ConnectWalletImage />} />
       <div className="${textClass}">
-        <ConnectWalletDidName fallback={<ConnectWalletInfoBalance ${balanceProps} />} />
-        <ConnectWalletDidId fallback={<ConnectWalletInfoAddress ${addressProps} />} />
+        <ConnectWalletDidName fallback={<ConnectWalletBalance ${balanceProps} />} />
+        <ConnectWalletDidId fallback={<ConnectWalletAddress ${addressProps} />} />
       </div>
     </ConnectWalletDid>
-  </ConnectWalletInfoContainer>
-  <ConnectWalletDialog>
-    <ConnectWalletDialogOverlay>
-      <ConnectWalletDialogWallets />
-      <ConnectWalletDialogSigners />
-      <ConnectWalletDialogConnecting />
-      <ConnectWalletDialogAccount />
-    </ConnectWalletDialogOverlay>
-  </ConnectWalletDialog>
-</ConnectWallet>`;
+  </button>
+  ${dialog}
+</ConnectWalletContainer>`;
     }
 
-    return `<ConnectWallet>
+    return `<ConnectWalletContainer>
   <ConnectWalletButton />
-  <ConnectWalletInfoContainer className="${containerClass}">
-    <ConnectWalletInfoImage />
+  <button type="button" className="${containerClass}" onClick={() => open()}>
+    <ConnectWalletImage />
     <div className="${textClass}">
-      <ConnectWalletInfoBalance ${balanceProps} />
-      <ConnectWalletInfoAddress ${addressProps} />
+      <ConnectWalletBalance ${balanceProps} />
+      <ConnectWalletAddress ${addressProps} />
     </div>
-  </ConnectWalletInfoContainer>
-  <ConnectWalletDialog>
-    <ConnectWalletDialogOverlay>
-      <ConnectWalletDialogWallets />
-      <ConnectWalletDialogSigners />
-      <ConnectWalletDialogConnecting />
-      <ConnectWalletDialogAccount />
-    </ConnectWalletDialogOverlay>
-  </ConnectWalletDialog>
-</ConnectWallet>`;
+  </button>
+  ${dialog}
+</ConnectWalletContainer>`;
   }, [containerClass, decimalPlaces, endChars, frontChars, showDid, textClass, withCurrency]);
 
   return (
@@ -105,11 +118,11 @@ export function DemoPage() {
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-black/55 dark:text-white/55">Demo</p>
         <h1 className="text-4xl font-semibold tracking-tight">Connect, then change the composition</h1>
         <p className="max-w-2xl text-lg leading-8 text-black/75 dark:text-white/75">
-          The playground uses the same component tree the kit expects. Connect a wallet and the controls below rewrite that tree.
+          The playground uses the same pieces the kit exports. Connect a wallet and the controls below rewrite that tree. <code>open</code> in the snippet is <code>useConnectWallet().open</code>.
         </p>
       </div>
 
-      <ConnectWallet>
+      <ConnectWalletContainer>
         {wallet ? (
           <div className="grid gap-8 lg:grid-cols-[18rem_1fr]">
             <form className="flex flex-col gap-4 border border-black/15 p-4 dark:border-white/15" onSubmit={(event) => event.preventDefault()}>
@@ -170,23 +183,23 @@ export function DemoPage() {
               <div className="demo-stage flex min-h-40 flex-col items-center justify-center gap-4 border border-black/15 p-8 dark:border-white/15">
                 {showDid ? (
                   <ConnectWalletDid>
-                    <ConnectWalletInfoContainer className={containerClass}>
-                      <ConnectWalletDidAvatar fallback={<ConnectWalletInfoImage />} />
+                    <OpenAccount className={containerClass}>
+                      <ConnectWalletDidAvatar fallback={<ConnectWalletImage />} />
                       <div className={textClass}>
-                        <ConnectWalletDidName fallback={<ConnectWalletInfoBalance decimalPlaces={decimalPlaces} withCurrency={withCurrency} />} />
-                        <ConnectWalletDidId fallback={<ConnectWalletInfoAddress frontChars={frontChars} endChars={endChars} />} />
+                        <ConnectWalletDidName fallback={<ConnectWalletBalance decimalPlaces={decimalPlaces} withCurrency={withCurrency} />} />
+                        <ConnectWalletDidId fallback={<ConnectWalletAddress frontChars={frontChars} endChars={endChars} />} />
                       </div>
-                    </ConnectWalletInfoContainer>
+                    </OpenAccount>
                     <DidStatus />
                   </ConnectWalletDid>
                 ) : (
-                  <ConnectWalletInfoContainer className={containerClass}>
-                    <ConnectWalletInfoImage />
+                  <OpenAccount className={containerClass}>
+                    <ConnectWalletImage />
                     <div className={textClass}>
-                      <ConnectWalletInfoBalance decimalPlaces={decimalPlaces} withCurrency={withCurrency} />
-                      <ConnectWalletInfoAddress frontChars={frontChars} endChars={endChars} />
+                      <ConnectWalletBalance decimalPlaces={decimalPlaces} withCurrency={withCurrency} />
+                      <ConnectWalletAddress frontChars={frontChars} endChars={endChars} />
                     </div>
-                  </ConnectWalletInfoContainer>
+                  </OpenAccount>
                 )}
               </div>
               <CodeBlock label="The tree these controls produce" lang="tsx" code={snippet} />
@@ -195,13 +208,13 @@ export function DemoPage() {
         ) : (
           <div className="flex flex-col items-start gap-4 border border-black/15 p-8 dark:border-white/15">
             <p className="max-w-xl text-sm leading-6">
-              Connect a wallet before the playground opens. The button is <code>ConnectWalletButton</code> inside <code>ConnectWallet</code>.
+              Connect a wallet before the playground opens. The button is <code>ConnectWalletButton</code> inside <code>ConnectWalletContainer</code>.
             </p>
             <ConnectWalletButton />
           </div>
         )}
         <WalletDialog />
-      </ConnectWallet>
+      </ConnectWalletContainer>
     </div>
   );
 }
