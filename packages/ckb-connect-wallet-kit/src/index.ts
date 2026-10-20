@@ -5,6 +5,7 @@ export {
   ConnectWalletInfoImage,
   ConnectWalletInfoBalance,
   ConnectWalletInfoAddress,
+  useConnectWallet,
 } from "./connect-wallet";
 
 export {
@@ -14,6 +15,16 @@ export {
   ConnectWalletDidId,
   useConnectWalletDid,
 } from "./connect-wallet-did";
+
+export {
+  ConnectWalletDialog,
+  ConnectWalletDialogOverlay,
+  ConnectWalletDialogWallets,
+  ConnectWalletDialogSigners,
+  ConnectWalletDialogConnecting,
+  ConnectWalletDialogAccount,
+  useConnectWalletDialog,
+} from "./connect-wallet-dialog";
 
 export {
   DID_CKB_SCRIPTS,
@@ -26,4 +37,6 @@ export {
 
 export { ConnectWalletKitProvider, LayoutProvider } from "./connect-wallet-kit-provider";
 export type { ConnectWalletDefaults, DecimalPlaces } from "./connect-wallet";
+export type { ConnectWalletDialogState, ConnectWalletDialogStatus } from "./connect-wallet-dialog";
+export type { ConnectWalletClientOption } from "./ccc-session";
 export type { DidProfile, DidResolver, DidResolverContext, DidScript } from "./did-ckb";

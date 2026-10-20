@@ -16,6 +16,7 @@ Compose the connect button, wallet icon, balance, and address yourself. Shared s
 - **Balance control** — `decimalPlaces` (`0`–`20`) truncates, does not round; optional `CKB` suffix
 - **Address control** — keep `frontChars` and `endChars`, the middle becomes `...`
 - **Auto hide / show** — `ConnectWalletButton` is gone after connect; the info pieces render only then
+- **Custom popup** — mount `ConnectWalletDialog` to replace CCC's modal. Compose the default sections, or render any layout from `useConnectWalletDialog()`
 - **did:ckb profile** — optional avatar, display name, and identifier for the connected lock
 - **TypeScript** — exported types for defaults, `DecimalPlaces`, and `DidProfile`
 
@@ -221,6 +222,11 @@ Sit this under the app’s `ccc.Provider`. It only stores shared defaults. It ca
 | `didIdClassName` | `ClassValue` | `text-xs font-normal` | Replaces the default typography of `ConnectWalletDidId`. |
 | `didFrontChars` | `number` | `14` | Characters kept at the start of the truncated `did:ckb:` string. |
 | `didEndChars` | `number` | `6` | Characters kept at the end of the truncated `did:ckb:` string. |
+| `dialogOverlayClassName` | `ClassValue` | `fixed inset-0 z-[1000] flex items-center justify-center bg-black/60 p-4` | Replaces the backdrop of `ConnectWalletDialogOverlay`. |
+| `dialogPanelClassName` | `ClassValue` | `flex max-h-[min(40rem,calc(100vh-2rem))] w-full max-w-sm flex-col overflow-y-auto rounded-2xl bg-white p-4 text-black shadow-2xl outline-none dark:bg-neutral-950 dark:text-white` | Replaces the panel. |
+| `dialogTitleClassName` | `ClassValue` | `text-base font-semibold` | Replaces the dialog title typography. |
+| `dialogListButtonClassName` | `ClassValue` | full-width rounded row with a light border | Replaces wallet, chain, and network buttons. |
+| `dialogActionClassName` | `ClassValue` | `flex w-full ... rounded-xl bg-black px-3 py-3 text-sm font-semibold text-white ... dark:bg-white dark:text-black` | Replaces Disconnect and Try again. |
 
 ### `LayoutProvider`
 
@@ -241,7 +247,7 @@ Local provider for one composition. It reads the CCC signer once and shares bala
 
 ### `ConnectWalletButton`
 
-Renders only while no wallet is connected. Clicking it calls CCC `open()`. Hidden after connect.
+Renders only while no wallet is connected. Clicking it calls `open()`. Hidden after connect. `open()` opens `ConnectWalletDialog` when that component is mounted in the same `ConnectWallet`. Otherwise it opens CCC's popup.
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
@@ -250,7 +256,7 @@ Renders only while no wallet is connected. Clicking it calls CCC `open()`. Hidde
 
 ### `ConnectWalletInfoContainer`
 
-Renders only after a wallet is connected. The whole pill calls `open()` again, which is how CCC shows account actions.
+Renders only after a wallet is connected. The whole pill calls `open()`. With `ConnectWalletDialog` mounted in the same `ConnectWallet`, that opens the account view. Otherwise it opens CCC's popup.
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
@@ -284,6 +290,122 @@ Shows the recommended address. If the address is longer than `frontChars + endCh
 | `frontChars` | `number` | `defaults.frontChars`, then `10` | Characters kept at the start. |
 | `endChars` | `number` | `defaults.endChars`, then `6` | Characters kept at the end. |
 | `className` | `ClassValue` | — | Merged after `defaults.addressClassName`. |
+
+### `ConnectWalletDialog`
+
+Popup state for one composition. It renders no chrome. Mount it inside `ConnectWallet`. While it is mounted, `open()` from the button, the pill, and `useConnectWallet()` opens this dialog. Leave it out and those clicks keep opening CCC's popup.
+
+The default sections cover the wallet list, the chain list, the connecting state, and the connected account. Skip `ConnectWalletDialogOverlay` when the popup should be a dropdown, drawer, or page. `useConnectWalletDialog()` exposes the same state for a fully custom tree.
+
+```tsx
+<ConnectWallet>
+  <ConnectWalletButton />
+  <ConnectWalletInfoContainer>{/* pill */}</ConnectWalletInfoContainer>
+  <ConnectWalletDialog>
+    <ConnectWalletDialogOverlay>
+      <ConnectWalletDialogWallets />
+      <ConnectWalletDialogSigners />
+      <ConnectWalletDialogConnecting />
+      <ConnectWalletDialogAccount />
+    </ConnectWalletDialogOverlay>
+  </ConnectWalletDialog>
+</ConnectWallet>
+```
+
+A wallet with one signer connects immediately. Several signers move to the chain step. After a successful connect the dialog stays open and shows the account. Disconnect returns to the wallet list. Network rows appear when `ccc.Provider` received `clientOptions`.
+
+`useConnectWalletDialog()` returns `{ isOpen, open, close, status, wallets, walletsLoading, discoverySettled, connectorMissing, refreshWallets, selectedWallet, selectWallet, connect, connectingError, retry, back, wallet, signer, address, balance, disconnect, client, setClient, clientOptions, showNetworks }`. `status` is `"wallets" | "signers" | "connecting" | "account" | "networks"`.
+
+```tsx
+function Popup() {
+  const dialog = useConnectWalletDialog();
+  if (!dialog.isOpen) return null;
+
+  if (dialog.status === "account") {
+    return (
+      <aside>
+        <p>{dialog.address}</p>
+        <button type="button" onClick={() => dialog.disconnect()}>Sign out</button>
+        <button type="button" onClick={dialog.close}>Close</button>
+      </aside>
+    );
+  }
+
+  return (
+    <ul>
+      {dialog.wallets.map((wallet) => (
+        <li key={wallet.name}>
+          <button type="button" onClick={() => dialog.selectWallet(wallet)}>{wallet.name}</button>
+        </li>
+      ))}
+    </ul>
+  );
+}
+```
+
+| Prop | Type | Default | What it does |
+| --- | --- | --- | --- |
+| `children` | `React.ReactNode` | — | The overlay and sections, or any custom UI that calls `useConnectWalletDialog()`. |
+
+### `ConnectWalletDialogOverlay`
+
+Optional centered modal: portal, backdrop, Escape, and focus wrap. Renders nothing while the dialog is closed.
+
+| Prop | Type | Default | What it does |
+| --- | --- | --- | --- |
+| `children` | `React.ReactNode` | — | Panel contents. Only the section for the current step renders. |
+| `className` | `ClassValue` | — | Merged onto the panel after `defaults.dialogPanelClassName`. |
+| `overlayClassName` | `ClassValue` | — | Merged onto the backdrop after `defaults.dialogOverlayClassName`. |
+| `label` | `string` | `"Wallet"` | Accessible name of the dialog. |
+
+### `ConnectWalletDialogWallets`
+
+Wallet list. Renders only while the dialog is open on the wallet step.
+
+| Prop | Type | Default | What it does |
+| --- | --- | --- | --- |
+| `className` | `ClassValue` | — | Merged onto the section. |
+| `buttonClassName` | `ClassValue` | — | Merged onto each wallet button after `defaults.dialogListButtonClassName`. |
+
+### `ConnectWalletDialogSigners`
+
+Chain list for the selected wallet. Renders only on that step.
+
+| Prop | Type | Default | What it does |
+| --- | --- | --- | --- |
+| `className` | `ClassValue` | — | Merged onto the section. |
+| `buttonClassName` | `ClassValue` | — | Merged onto each chain button after `defaults.dialogListButtonClassName`. |
+
+### `ConnectWalletDialogConnecting`
+
+Opening and failure state. Try again repeats the attempt. A wallet that only offers an install link asks the user to install it.
+
+| Prop | Type | Default | What it does |
+| --- | --- | --- | --- |
+| `className` | `ClassValue` | — | Merged onto the section. |
+| `buttonClassName` | `ClassValue` | — | Merged onto Try again after `defaults.dialogActionClassName`. |
+
+### `ConnectWalletDialogAccount`
+
+Connected view. Shows the wallet icon, a copyable address, the balance, `children`, Disconnect, and a network switch when CCC has `clientOptions`. The network step is part of this component.
+
+| Prop | Type | Default | What it does |
+| --- | --- | --- | --- |
+| `children` | `React.ReactNode` | — | Extra actions, rendered above Disconnect. |
+| `className` | `ClassValue` | — | Merged onto the section. |
+| `buttonClassName` | `ClassValue` | — | Merged onto Disconnect and the network rows. |
+
+### `useConnectWallet`
+
+Read the composition state, including `open()`. A custom trigger that calls `open()` follows the same dialog-or-CCC rule as the built-in button.
+
+| Field | What it does |
+| --- | --- |
+| `open` | Opens `ConnectWalletDialog` when one is mounted here. Otherwise opens CCC. |
+| `wallet` | The connected CCC wallet, or `undefined`. |
+| `address` | Recommended address. Empty until it loads. |
+| `balance` | Capacity string from CCC. Empty until it loads. |
+| `isLoading` | True while address and balance are loading. |
 
 ### `ConnectWalletDid`
 
@@ -353,6 +475,7 @@ Copy these files into the same folder in your app:
 - `src/connect-wallet.tsx`
 - `src/utils.ts`
 - `src/connect-wallet-kit-provider.tsx`
+- `src/connect-wallet-dialog.tsx` and `src/ccc-session.ts` (only if you want the custom popup)
 - `src/did-ckb.ts` and `src/connect-wallet-did.tsx` (only if you want the DID pieces)
 
 `connect-wallet.tsx` imports `./utils`, and the provider imports `./connect-wallet`, so they have to stay together. Mount your own `ccc.Provider` around the kit provider. The copied provider does not mount CCC.

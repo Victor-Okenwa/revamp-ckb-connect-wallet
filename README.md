@@ -20,6 +20,7 @@ A clean compound component with full control over layout, styling, balance forma
   - Full Tailwind class overrides via `className`
 - **Auto hide/show** – button vs. connected info
 - **did:ckb profile** – optional avatar, display name, and identifier for the connected lock
+- **Custom popup** – mount `ConnectWalletDialog` to replace CCC's modal, or render any layout from `useConnectWalletDialog()`
 - **Dark mode ready** + modern default styles
 - **Type-safe** – TypeScript everywhere
 
@@ -51,6 +52,11 @@ Copy these files into your app. `connect-wallet.tsx` and `utils.ts` must stay in
 - `packages/ckb-connect-wallet-kit/src/connect-wallet.tsx` → `src/components/connect-wallet.tsx`
 - `packages/ckb-connect-wallet-kit/src/utils.ts` → `src/components/utils.ts`
 - `packages/ckb-connect-wallet-kit/src/connect-wallet-kit-provider.tsx` → `src/components/connect-wallet-kit-provider.tsx`
+
+Optional, only if you want the custom popup (same folder):
+
+- `packages/ckb-connect-wallet-kit/src/connect-wallet-dialog.tsx` → `src/components/connect-wallet-dialog.tsx`
+- `packages/ckb-connect-wallet-kit/src/ccc-session.ts` → `src/components/ccc-session.ts`
 
 Optional, only if you want the did:ckb pieces (same folder):
 
@@ -234,6 +240,28 @@ import {
 - Provider defaults: `didAvatarClassName`, `didNameClassName`, `didIdClassName`, `didFrontChars`, `didEndChars`.
 
 Creating or editing a DID is a signed CKB transaction and is outside this kit.
+
+## Custom popup
+
+Mount `ConnectWalletDialog` inside `ConnectWallet` and the button and pill call that popup. Leave it out and they keep opening CCC.
+
+`ConnectWalletDialog` renders no chrome. `ConnectWalletDialogOverlay` is the optional centered modal. The wallet, chain, connecting, and account sections each render only on their own step. Skip any of them, or skip the overlay, and build the layout with `useConnectWalletDialog()`.
+
+```tsx
+<ConnectWallet>
+  <ConnectWalletButton />
+  <ConnectWalletDialog>
+    <ConnectWalletDialogOverlay>
+      <ConnectWalletDialogWallets />
+      <ConnectWalletDialogSigners />
+      <ConnectWalletDialogConnecting />
+      <ConnectWalletDialogAccount />
+    </ConnectWalletDialogOverlay>
+  </ConnectWalletDialog>
+</ConnectWallet>
+```
+
+`ConnectWalletDialogAccount` renders `children` above Disconnect, so extra actions sit in the default account view. Shared classes are `dialogOverlayClassName`, `dialogPanelClassName`, `dialogTitleClassName`, `dialogListButtonClassName`, and `dialogActionClassName` on `ConnectWalletKitProvider` `defaults`.
 
 ## Development
 

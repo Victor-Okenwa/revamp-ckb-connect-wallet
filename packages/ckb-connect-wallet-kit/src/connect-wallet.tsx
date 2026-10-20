@@ -1,6 +1,6 @@
 import { ccc } from "@ckb-ccc/connector-react";
 import { ClassValue } from "clsx";
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { cn, truncateAddress } from "./utils";
 
 export type DecimalPlaces = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20;
@@ -21,6 +21,11 @@ export type ConnectWalletDefaults = {
     didIdClassName?: ClassValue;
     didFrontChars?: number;
     didEndChars?: number;
+    dialogOverlayClassName?: ClassValue;
+    dialogPanelClassName?: ClassValue;
+    dialogTitleClassName?: ClassValue;
+    dialogListButtonClassName?: ClassValue;
+    dialogActionClassName?: ClassValue;
 };
 
 export const ConnectWalletDefaultsContext = createContext<ConnectWalletDefaults>({});
@@ -46,33 +51,44 @@ interface ConnectWalletContextProps {
     wallet: ccc.Wallet | undefined
 }
 
-const initialWalletConnectState: ConnectWalletContextProps = {
-    isLoading: true,
-    setIsLoading: () => { },
-    balance: "",
-    setBalance: () => { },
-    address: "",
-    setAddress: () => { },
-    open: () => { },
-    wallet: undefined
-};
+const ConnectWalletContext = createContext<ConnectWalletContextProps | undefined>(undefined);
 
+type DialogRegistration = (openDialog: () => void) => () => void;
 
-//  Context for store
-const ConnectWalletContext = createContext<ConnectWalletContextProps>(initialWalletConnectState);
+const ConnectWalletDialogRegistrationContext = createContext<DialogRegistration | null>(null);
 
 export function useConnectWallet() {
     const context = useContext(ConnectWalletContext);
-    if (!context) throw new Error("Wallet connect components must be used within <WalletConnect />");
+    if (!context) throw new Error("useConnectWallet must be used within <ConnectWallet />");
     return context;
 }
 
+export function useConnectWalletDialogRegistration() {
+    const register = useContext(ConnectWalletDialogRegistrationContext);
+    if (!register) throw new Error("ConnectWalletDialog must be used within <ConnectWallet />");
+    return register;
+}
+
 export function ConnectWallet({ children }: { children: React.ReactNode }) {
-    const { open, wallet } = ccc.useCcc();
+    const { open: openCcc, wallet } = ccc.useCcc();
     const [balance, setBalance] = useState<string>("");
     const [address, setAddress] = useState<string>("");
     const [isLoading, setIsLoading] = useState(false);
     const signer = ccc.useSigner();
+    const dialogRef = useRef<(() => void) | null>(null);
+    const registerDialog = useCallback<DialogRegistration>((openDialog) => {
+        dialogRef.current = openDialog;
+        return () => {
+            if (dialogRef.current === openDialog) dialogRef.current = null;
+        };
+    }, []);
+    const open = useCallback(() => {
+        if (dialogRef.current) {
+            dialogRef.current();
+            return;
+        }
+        return openCcc();
+    }, [openCcc]);
 
     useEffect(() => {
         if (!signer) {
@@ -114,7 +130,9 @@ export function ConnectWallet({ children }: { children: React.ReactNode }) {
 
     return (
         <ConnectWalletContext.Provider value={values}>
-            {children}
+            <ConnectWalletDialogRegistrationContext.Provider value={registerDialog}>
+                {children}
+            </ConnectWalletDialogRegistrationContext.Provider>
         </ConnectWalletContext.Provider>
     )
 }

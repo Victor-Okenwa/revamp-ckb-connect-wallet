@@ -14,6 +14,7 @@ import {
   useConnectWalletDid,
 } from "ckb-connect-wallet-kit";
 import { CodeBlock } from "./code-block";
+import { WalletDialog } from "./wallet-dialog";
 
 type DecimalPlaces = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20;
 
@@ -67,6 +68,14 @@ export function DemoPage() {
       </div>
     </ConnectWalletDid>
   </ConnectWalletInfoContainer>
+  <ConnectWalletDialog>
+    <ConnectWalletDialogOverlay>
+      <ConnectWalletDialogWallets />
+      <ConnectWalletDialogSigners />
+      <ConnectWalletDialogConnecting />
+      <ConnectWalletDialogAccount />
+    </ConnectWalletDialogOverlay>
+  </ConnectWalletDialog>
 </ConnectWallet>`;
     }
 
@@ -79,6 +88,14 @@ export function DemoPage() {
       <ConnectWalletInfoAddress ${addressProps} />
     </div>
   </ConnectWalletInfoContainer>
+  <ConnectWalletDialog>
+    <ConnectWalletDialogOverlay>
+      <ConnectWalletDialogWallets />
+      <ConnectWalletDialogSigners />
+      <ConnectWalletDialogConnecting />
+      <ConnectWalletDialogAccount />
+    </ConnectWalletDialogOverlay>
+  </ConnectWalletDialog>
 </ConnectWallet>`;
   }, [containerClass, decimalPlaces, endChars, frontChars, showDid, textClass, withCurrency]);
 
@@ -183,6 +200,7 @@ export function DemoPage() {
             <ConnectWalletButton />
           </div>
         )}
+        <WalletDialog />
       </ConnectWallet>
     </div>
   );

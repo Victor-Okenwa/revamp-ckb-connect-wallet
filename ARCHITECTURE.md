@@ -92,6 +92,8 @@ All sub-components read from the shared context automatically. The provider hand
 - **`packages/ckb-connect-wallet-kit/src/connect-wallet-kit-provider.tsx`** – defaults provider. `defaults` sets classes, decimal places, address truncation, and the button label. It calls `ccc.useCcc()` and must sit under the app’s `ccc.Provider`. It does not mount CCC. `LayoutProvider` is the same component.
 - **`packages/ckb-connect-wallet-kit/src/did-ckb.ts`** – did:ckb lookup. Lists the live DID Metadata Cells locked by the wallet (`findCells` with the did:ckb type script as filter), decodes the molecule `DidCkbData` union and the CBOR document, and reads `services.profile` (`displayName`, `avatar`, `bio`) plus `alsoKnownAs`. Mainnet and testnet code hashes are bundled; CCC's `KnownScript.DidCkb` is used when present.
 - **`packages/ckb-connect-wallet-kit/src/connect-wallet-did.tsx`** – optional `ConnectWalletDid` provider plus `ConnectWalletDidAvatar`, `ConnectWalletDidName`, `ConnectWalletDidId`, and `useConnectWalletDid`. Fetches only when rendered, under `ConnectWallet`.
+- **`packages/ckb-connect-wallet-kit/src/connect-wallet-dialog.tsx`** – optional popup. `ConnectWalletDialog` holds the state and renders no chrome. `ConnectWalletDialogOverlay` is the centered modal. `ConnectWalletDialogWallets`, `ConnectWalletDialogSigners`, `ConnectWalletDialogConnecting`, and `ConnectWalletDialogAccount` each render on their own step. `useConnectWalletDialog()` is the escape hatch for a custom layout. While the dialog is mounted, `open()` from that `ConnectWallet` opens it. Otherwise `open()` still opens CCC.
+- **`packages/ckb-connect-wallet-kit/src/ccc-session.ts`** – reads the wallet list off CCC's `<ccc-connector>` element and writes the chosen session back so `ccc.useSigner()` updates. Not a public API.
 
 Consumers install `ckb-connect-wallet-kit` and import from that package name. React, React DOM, and `@ckb-ccc/connector-react` are peer dependencies.
 
@@ -204,7 +206,9 @@ decimalPlaces?: DecimalPlaces (type 0 | 1 | ... | 20)`
 
 ## 7. Data Flow & Performance
 
-- User clicks button → open() from CCC
+- User clicks button → `open()` from the kit context
+- If `ConnectWalletDialog` is mounted in that `ConnectWallet`, the kit popup opens
+- Otherwise `open()` is CCC's `open()`
 - CCC provides new signer
 - Loading state set to true
 - useEffect triggers Promise.all([getRecommendedAddress(), getBalance()])

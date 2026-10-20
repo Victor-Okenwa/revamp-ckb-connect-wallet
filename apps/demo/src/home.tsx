@@ -8,6 +8,7 @@ import {
   ConnectWalletInfoImage,
 } from "ckb-connect-wallet-kit";
 import { CodeBlock } from "./code-block";
+import { WalletDialog } from "./wallet-dialog";
 import { ComponentCards } from "./components-page";
 import { HeroTitle } from "./hero-title";
 import connectWalletSource from "../../../packages/ckb-connect-wallet-kit/src/connect-wallet.tsx?raw";
@@ -15,6 +16,8 @@ import kitProviderSource from "../../../packages/ckb-connect-wallet-kit/src/conn
 import didCkbSource from "../../../packages/ckb-connect-wallet-kit/src/did-ckb.ts?raw";
 import connectWalletDidSource from "../../../packages/ckb-connect-wallet-kit/src/connect-wallet-did.tsx?raw";
 import utilsSource from "../../../packages/ckb-connect-wallet-kit/src/utils.ts?raw";
+import connectWalletDialogSource from "../../../packages/ckb-connect-wallet-kit/src/connect-wallet-dialog.tsx?raw";
+import cccSessionSource from "../../../packages/ckb-connect-wallet-kit/src/ccc-session.ts?raw";
 
 type InstallPath = "package" | "copy";
 type PackageManager = "npm" | "pnpm" | "yarn" | "bun";
@@ -197,6 +200,42 @@ export function App() {
   );
 }`;
 
+const exampleDialog = `import {
+  ConnectWallet,
+  ConnectWalletButton,
+  ConnectWalletDialog,
+  ConnectWalletDialogAccount,
+  ConnectWalletDialogConnecting,
+  ConnectWalletDialogOverlay,
+  ConnectWalletDialogSigners,
+  ConnectWalletDialogWallets,
+  ConnectWalletInfoAddress,
+  ConnectWalletInfoBalance,
+  ConnectWalletInfoContainer,
+  ConnectWalletInfoImage,
+} from "ckb-connect-wallet-kit";
+
+export function Wallet() {
+  return (
+    <ConnectWallet>
+      <ConnectWalletButton />
+      <ConnectWalletInfoContainer className="flex items-center gap-2">
+        <ConnectWalletInfoImage />
+        <ConnectWalletInfoBalance decimalPlaces={4} />
+        <ConnectWalletInfoAddress frontChars={6} endChars={4} />
+      </ConnectWalletInfoContainer>
+      <ConnectWalletDialog>
+        <ConnectWalletDialogOverlay>
+          <ConnectWalletDialogWallets />
+          <ConnectWalletDialogSigners />
+          <ConnectWalletDialogConnecting />
+          <ConnectWalletDialogAccount />
+        </ConnectWalletDialogOverlay>
+      </ConnectWalletDialog>
+    </ConnectWallet>
+  );
+}`;
+
 const exampleDidProfile = `import { ccc } from "@ckb-ccc/connector-react";
 import {
   ConnectWallet,
@@ -256,6 +295,18 @@ const sourceFiles = [
     path: "src/components/connect-wallet-kit-provider.tsx",
     note: "Must sit under the app's ccc.Provider. Use defaults for the shared look. This file does not mount CCC.",
     source: kitProviderSource,
+  },
+  {
+    id: "connect-wallet-dialog.tsx",
+    path: "src/components/connect-wallet-dialog.tsx",
+    note: "Optional. The popup. Imports ./connect-wallet, ./ccc-session, and ./utils, so those files stay in the same folder.",
+    source: connectWalletDialogSource,
+  },
+  {
+    id: "ccc-session.ts",
+    path: "src/components/ccc-session.ts",
+    note: "Optional. Used by the dialog to read CCC's wallet list and store the chosen session. Same folder as connect-wallet-dialog.tsx.",
+    source: cccSessionSource,
   },
   {
     id: "did-ckb.ts",
@@ -369,7 +420,7 @@ export function HomePage() {
         ) : (
           <div className="flex flex-col gap-4">
             <p className="text-sm leading-6 text-black/70 dark:text-white/70">
-              Copy the files below into your app. The first three are required, the two DID files are optional. All of them have to stay in the same folder. Tailwind will see the classes because the files are in your project, so you do not add an <code>@source</code> rule.
+              Copy the files below into your app. The first three are required. The dialog files are optional and replace CCC's popup. The two DID files are optional. All of them have to stay in the same folder. Tailwind will see the classes because the files are in your project, so you do not add an <code>@source</code> rule.
             </p>
             <CodeBlock label="Install the dependencies the files import" lang="bash" code={copyInstall[manager]} />
             <div className="flex flex-wrap gap-2">
@@ -427,6 +478,14 @@ export function HomePage() {
         </div>
 
         <div className="flex flex-col gap-3">
+          <h3 className="text-xl font-semibold tracking-tight">Custom popup</h3>
+          <p className="max-w-2xl text-sm leading-6 text-black/70 dark:text-white/70">
+            Mount <code>ConnectWalletDialog</code> inside <code>ConnectWallet</code> and the button and pill open that popup. Leave it out and they keep opening CCC. Replace any section, skip the overlay for your own layout, or read <code>useConnectWalletDialog()</code> and render the whole thing yourself.
+          </p>
+          <CodeBlock label="ConnectWalletDialog" lang="tsx" code={exampleDialog} />
+        </div>
+
+        <div className="flex flex-col gap-3">
           <h3 className="text-xl font-semibold tracking-tight">did:ckb profile</h3>
           <p className="max-w-2xl text-sm leading-6 text-black/70 dark:text-white/70">
             Optional. <code>ConnectWalletDid</code> lists the live did:ckb cells owned by the connected lock and shares the newest one with its children. Each piece takes a <code>fallback</code> for wallets with no DID or no profile. Creating or editing a DID is outside this kit.
@@ -450,6 +509,7 @@ export function HeaderWallet() {
           <ConnectWalletInfoAddress frontChars={5} endChars={4} />
         </div>
       </ConnectWalletInfoContainer>
+      <WalletDialog />
     </ConnectWallet>
   );
 }

@@ -52,6 +52,11 @@ const components: ComponentDoc[] = [
       { name: "defaults.didIdClassName", type: "ClassValue", detail: "Replaces the default text-xs font-normal on the did:ckb identifier." },
       { name: "defaults.didFrontChars", type: "number", detail: "Characters kept at the start of the did:ckb string. Built-in default is 14." },
       { name: "defaults.didEndChars", type: "number", detail: "Characters kept at the end of the did:ckb string. Built-in default is 6." },
+      { name: "defaults.dialogOverlayClassName", type: "ClassValue", detail: "Replaces the built-in backdrop on ConnectWalletDialogOverlay." },
+      { name: "defaults.dialogPanelClassName", type: "ClassValue", detail: "Replaces the built-in panel on ConnectWalletDialogOverlay." },
+      { name: "defaults.dialogTitleClassName", type: "ClassValue", detail: "Replaces the built-in dialog title typography." },
+      { name: "defaults.dialogListButtonClassName", type: "ClassValue", detail: "Replaces the built-in wallet, chain, and network buttons." },
+      { name: "defaults.dialogActionClassName", type: "ClassValue", detail: "Replaces the built-in Disconnect and Try again buttons." },
     ],
   },
   {
@@ -73,7 +78,7 @@ const components: ComponentDoc[] = [
   {
     id: "button",
     name: "ConnectWalletButton",
-    summary: "Renders only while no wallet is connected. Clicking it calls open() from CCC.",
+    summary: "Renders only while no wallet is connected. Clicking it calls open(). A ConnectWalletDialog in the same ConnectWallet receives that click. Without one, CCC's popup opens.",
     example: `<ConnectWalletButton className="px-4">
   Connect
 </ConnectWalletButton>`,
@@ -85,7 +90,7 @@ const components: ComponentDoc[] = [
   {
     id: "container",
     name: "ConnectWalletInfoContainer",
-    summary: "Renders only after a wallet is connected. The whole pill calls open() again, which is how CCC shows account actions.",
+    summary: "Renders only after a wallet is connected. The whole pill calls open(). A ConnectWalletDialog in the same ConnectWallet shows the account view. Without one, CCC's popup opens.",
     example: `<ConnectWalletInfoContainer className="flex items-center gap-3">
   <ConnectWalletInfoImage />
   <ConnectWalletInfoBalance />
@@ -131,6 +136,83 @@ const components: ComponentDoc[] = [
       { name: "frontChars", type: "number", detail: "Overrides defaults.frontChars. Built-in default is 10." },
       { name: "endChars", type: "number", detail: "Overrides defaults.endChars. Built-in default is 6." },
       { name: "className", type: "ClassValue", detail: "Merged after defaults.addressClassName." },
+    ],
+  },
+  {
+    id: "dialog",
+    name: "ConnectWalletDialog",
+    summary: "Popup state for one composition. It renders no chrome. While it is mounted, open() from the button, the pill, and useConnectWallet() opens this dialog.",
+    example: `<ConnectWallet>
+  <ConnectWalletButton />
+  <ConnectWalletDialog>
+    <ConnectWalletDialogOverlay>
+      <ConnectWalletDialogWallets />
+      <ConnectWalletDialogSigners />
+      <ConnectWalletDialogConnecting />
+      <ConnectWalletDialogAccount />
+    </ConnectWalletDialogOverlay>
+  </ConnectWalletDialog>
+</ConnectWallet>`,
+    props: [
+      { name: "children", type: "React.ReactNode", detail: "The overlay and sections, or any custom UI that calls useConnectWalletDialog()." },
+    ],
+  },
+  {
+    id: "dialog-overlay",
+    name: "ConnectWalletDialogOverlay",
+    summary: "Optional centered modal. Skip it when the popup should be a dropdown, drawer, or another layout.",
+    example: `<ConnectWalletDialogOverlay label="Connect a wallet">
+  <ConnectWalletDialogWallets />
+  <ConnectWalletDialogAccount />
+</ConnectWalletDialogOverlay>`,
+    props: [
+      { name: "children", type: "React.ReactNode", detail: "What the panel shows. Only the section for the current step renders." },
+      { name: "className", type: "ClassValue", detail: "Merged onto the panel after defaults.dialogPanelClassName." },
+      { name: "overlayClassName", type: "ClassValue", detail: "Merged onto the backdrop after defaults.dialogOverlayClassName." },
+      { name: "label", type: "string", detail: "Accessible name of the dialog. Built-in is Wallet." },
+    ],
+  },
+  {
+    id: "dialog-wallets",
+    name: "ConnectWalletDialogWallets",
+    summary: "Wallet list. Renders only while the dialog is open on the wallet step. One signer connects immediately. Several signers move to the chain step.",
+    example: `<ConnectWalletDialogWallets buttonClassName="rounded-none" />`,
+    props: [
+      { name: "className", type: "ClassValue", detail: "Merged onto the section." },
+      { name: "buttonClassName", type: "ClassValue", detail: "Merged onto each wallet button after defaults.dialogListButtonClassName." },
+    ],
+  },
+  {
+    id: "dialog-signers",
+    name: "ConnectWalletDialogSigners",
+    summary: "Chain list for the selected wallet. Renders only on that step.",
+    example: `<ConnectWalletDialogSigners />`,
+    props: [
+      { name: "className", type: "ClassValue", detail: "Merged onto the section." },
+      { name: "buttonClassName", type: "ClassValue", detail: "Merged onto each chain button after defaults.dialogListButtonClassName." },
+    ],
+  },
+  {
+    id: "dialog-connecting",
+    name: "ConnectWalletDialogConnecting",
+    summary: "Opening and error state. Try again repeats the attempt.",
+    example: `<ConnectWalletDialogConnecting />`,
+    props: [
+      { name: "className", type: "ClassValue", detail: "Merged onto the section." },
+      { name: "buttonClassName", type: "ClassValue", detail: "Merged onto Try again after defaults.dialogActionClassName." },
+    ],
+  },
+  {
+    id: "dialog-account",
+    name: "ConnectWalletDialogAccount",
+    summary: "Connected view: wallet, address, balance, your actions, Disconnect, and network switching when ccc.Provider received clientOptions.",
+    example: `<ConnectWalletDialogAccount>
+  <a href="/settings">Settings</a>
+</ConnectWalletDialogAccount>`,
+    props: [
+      { name: "children", type: "React.ReactNode", detail: "Extra actions, rendered above Disconnect." },
+      { name: "className", type: "ClassValue", detail: "Merged onto the section." },
+      { name: "buttonClassName", type: "ClassValue", detail: "Merged onto Disconnect and the network rows." },
     ],
   },
   {
@@ -220,7 +302,7 @@ export function ComponentCards() {
       <div className="flex flex-col gap-2">
         <h2 className="text-3xl font-semibold tracking-tight">The pieces</h2>
         <p className="max-w-2xl text-black/70 dark:text-white/70">
-          Eleven components, two across. Open a card for a usage example and every prop. The four DID pieces are optional and only fetch when rendered.
+          Open a card for a usage example and every prop. The dialog pieces are optional and replace CCC's popup. The four DID pieces are optional and only fetch when rendered.
           A prop on one piece overrides the matching provider default.
           <code> LayoutProvider</code> is the previous name of the kit provider and is the same component. Both must sit under the app’s <code>ccc.Provider</code>.
         </p>
