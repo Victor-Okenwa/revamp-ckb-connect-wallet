@@ -240,14 +240,23 @@ Creating or editing a DID is a signed CKB transaction and is outside this kit.
 
 Mount `ConnectWalletDialog` inside `ConnectWalletContainer`. The connect button, and any element that calls `open()` from `useConnectWallet()`, opens that popup. Leave the dialog out and those calls keep opening CCC.
 
-`ConnectWalletDialog` renders no chrome. `ConnectWalletDialogOverlay` is the optional centered modal. The wallet, chain, and connecting sections each render only on their own step. `ConnectWalletDialogAccount` is a container: put a header, close button, wallet pieces, and footer inside it.
+`ConnectWalletDialog` renders no chrome. `ConnectWalletDialogOverlay` is the optional centered modal. The wallet step and the account step are containers. The chain and connecting sections each render only on their own step.
 
 ```tsx
 <ConnectWalletContainer>
   <ConnectWalletButton />
   <ConnectWalletDialog>
     <ConnectWalletDialogOverlay>
-      <ConnectWalletDialogWallets />
+      <ConnectWalletDialogWallets>
+        <ConnectWalletDialogWalletsHeader>
+          <h2>Connect Wallet</h2>
+          <ConnectWalletDialogClose />
+        </ConnectWalletDialogWalletsHeader>
+        <ConnectWalletDialogWalletList show="both" />
+        <ConnectWalletDialogWalletsFooter>
+          <ConnectWalletDialogWalletsRefresh />
+        </ConnectWalletDialogWalletsFooter>
+      </ConnectWalletDialogWallets>
       <ConnectWalletDialogSigners />
       <ConnectWalletDialogConnecting />
       <ConnectWalletDialogAccount>

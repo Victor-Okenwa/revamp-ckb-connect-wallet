@@ -21,6 +21,11 @@ export {
   ConnectWalletDialog,
   ConnectWalletDialogOverlay,
   ConnectWalletDialogWallets,
+  ConnectWalletDialogWalletsHeader,
+  ConnectWalletDialogWalletsFooter,
+  ConnectWalletDialogWalletsRefresh,
+  ConnectWalletDialogWalletList,
+  ConnectWalletDialogWallet,
   ConnectWalletDialogSigners,
   ConnectWalletDialogConnecting,
   ConnectWalletDialogAccount,
@@ -42,6 +47,6 @@ export {
 
 export { ConnectWalletKitProvider, LayoutProvider } from "./connect-wallet-kit-provider";
 export type { ConnectWalletDefaults, DecimalPlaces } from "./connect-wallet";
-export type { ConnectWalletDialogState, ConnectWalletDialogStatus } from "./connect-wallet-dialog";
+export type { ConnectWalletDialogState, ConnectWalletDialogStatus, ConnectWalletDialogWalletShow } from "./connect-wallet-dialog";
 export type { ConnectWalletClientOption } from "./ccc-session";
 export type { DidProfile, DidResolver, DidResolverContext, DidScript } from "./did-ckb";

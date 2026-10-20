@@ -67,7 +67,16 @@ export function DemoPage() {
 
     const dialog = `<ConnectWalletDialog>
     <ConnectWalletDialogOverlay>
-      <ConnectWalletDialogWallets />
+      <ConnectWalletDialogWallets>
+        <ConnectWalletDialogWalletsHeader>
+          <h2>Connect Wallet</h2>
+          <ConnectWalletDialogClose />
+        </ConnectWalletDialogWalletsHeader>
+        <ConnectWalletDialogWalletList show="both" />
+        <ConnectWalletDialogWalletsFooter>
+          <ConnectWalletDialogWalletsRefresh />
+        </ConnectWalletDialogWalletsFooter>
+      </ConnectWalletDialogWallets>
       <ConnectWalletDialogSigners />
       <ConnectWalletDialogConnecting />
       <ConnectWalletDialogAccount>

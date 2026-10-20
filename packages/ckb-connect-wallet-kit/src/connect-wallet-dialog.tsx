@@ -26,6 +26,9 @@ const dialogIconButtonAppearance = "flex h-8 w-8 shrink-0 cursor-pointer items-c
 const dialogMutedAppearance = "text-center text-xs leading-5 text-black/60 dark:text-white/60";
 const dialogAccountHeaderAppearance = "flex items-center justify-between gap-2";
 const dialogAccountFooterAppearance = "flex flex-col gap-2";
+const dialogWalletsHeaderAppearance = "flex items-center justify-between gap-2";
+const dialogWalletsFooterAppearance = "flex flex-col gap-2";
+const refreshWalletsAppearance = "cursor-pointer text-center text-xs leading-5 text-black/60 underline-offset-2 hover:underline dark:text-white/60";
 const switchNetworkAppearance = "cursor-pointer text-center text-xs leading-5 text-black/60 underline-offset-2 hover:underline dark:text-white/60";
 
 let scrollLocks = 0;
@@ -46,6 +49,9 @@ function lockPageScroll() {
 }
 
 export type ConnectWalletDialogStatus = "wallets" | "signers" | "connecting" | "account" | "networks";
+
+/** What a wallet row shows. `both` is the built-in. */
+export type ConnectWalletDialogWalletShow = "icon" | "name" | "both";
 
 export type ConnectWalletDialogState = {
     isOpen: boolean;
@@ -476,49 +482,183 @@ export function ConnectWalletDialogOverlay({
     );
 }
 
-export function ConnectWalletDialogWallets({
+function orderedWallets(wallets: ccc.WalletWithSigners[], names: readonly string[] | undefined) {
+    if (!names) return wallets;
+    return names.flatMap((name) => {
+        const match = wallets.find((wallet) => wallet.name === name);
+        return match ? [match] : [];
+    });
+}
+
+/** `MetaMask` → `ckb-wallet-metamask`, `JoyID Passkey` → `ckb-wallet-joyid-passkey`. */
+function walletButtonClass(name: string) {
+    const slug = name
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+    return slug ? `ckb-wallet-${slug}` : "ckb-wallet";
+}
+
+function WalletOption({
+    wallet,
+    show = "both",
     className,
-    buttonClassName,
 }: {
+    wallet: ccc.WalletWithSigners;
+    show?: ConnectWalletDialogWalletShow;
     className?: ClassValue;
-    /** Merged onto each wallet button, after `defaults.dialogListButtonClassName`. */
-    buttonClassName?: ClassValue;
 }) {
     const dialog = useConnectWalletDialog();
     const defaults = useConnectWalletDefaults();
-    if (!dialog.isOpen || dialog.status !== "wallets") return null;
-
-    const buttonClass = listButtonClass(buttonClassName, defaults.dialogListButtonClassName);
+    const showIcon = show !== "name";
+    const showName = show !== "icon";
 
     return (
-        <DialogFrame title="Connect Wallet" className={className}>
-            {dialog.connectorMissing ? (
-                <p className={dialogMutedAppearance}>Mount ccc.Provider above this dialog to list wallets.</p>
-            ) : dialog.wallets.length === 0 ? (
-                <p className={dialogMutedAppearance}>
-                    {dialog.walletsLoading || !dialog.discoverySettled ? "Looking for wallets…" : "No wallets found."}
-                </p>
-            ) : (
-                <ul className="flex flex-col gap-2">
-                    {dialog.wallets.map((wallet) => (
-                        <li key={wallet.name}>
-                            <button type="button" className={buttonClass} onClick={() => dialog.selectWallet(wallet)}>
-                                <img src={wallet.icon} alt="" className="h-8 w-8 shrink-0 rounded-lg" />
-                                <span className="min-w-0 truncate">{wallet.name}</span>
-                            </button>
-                        </li>
-                    ))}
-                </ul>
-            )}
-            <button
-                type="button"
-                className={cn(dialogMutedAppearance, "cursor-pointer underline-offset-2 hover:underline")}
-                onClick={dialog.refreshWallets}
-            >
-                Refresh wallets
-            </button>
-        </DialogFrame>
+        <button
+            type="button"
+            className={cn(walletButtonClass(wallet.name), listButtonClass(className, defaults.dialogListButtonClassName))}
+            aria-label={showName ? undefined : wallet.name}
+            onClick={() => dialog.selectWallet(wallet)}
+        >
+            {showIcon ? <img src={wallet.icon} alt="" className="h-8 w-8 shrink-0 rounded-lg" /> : null}
+            {showName ? <span className="min-w-0 truncate">{wallet.name}</span> : null}
+        </button>
     );
+}
+
+/** Wallet step shell. Put the header, wallet list, and footer inside it. */
+export function ConnectWalletDialogWallets({
+    children,
+    className,
+}: {
+    children?: React.ReactNode;
+    className?: ClassValue;
+}) {
+    const dialog = useConnectWalletDialog();
+    if (!dialog.isOpen || dialog.status !== "wallets") return null;
+
+    return (
+        <div className={cn("flex flex-col gap-3", className)}>
+            {children}
+        </div>
+    );
+}
+
+export function ConnectWalletDialogWalletsHeader({
+    children,
+    className,
+}: {
+    children?: React.ReactNode;
+    className?: ClassValue;
+}) {
+    const dialog = useConnectWalletDialog();
+    if (!dialog.isOpen || dialog.status !== "wallets") return null;
+
+    return (
+        <header className={cn(dialogWalletsHeaderAppearance, className)}>
+            {children}
+        </header>
+    );
+}
+
+export function ConnectWalletDialogWalletsFooter({
+    children,
+    className,
+}: {
+    children?: React.ReactNode;
+    className?: ClassValue;
+}) {
+    const dialog = useConnectWalletDialog();
+    if (!dialog.isOpen || dialog.status !== "wallets") return null;
+
+    return (
+        <footer className={cn(dialogWalletsFooterAppearance, className)}>
+            {children}
+        </footer>
+    );
+}
+
+export function ConnectWalletDialogWalletsRefresh({
+    buttonText,
+    className,
+}: {
+    buttonText?: React.ReactNode;
+    className?: ClassValue;
+}) {
+    const dialog = useConnectWalletDialog();
+    if (!dialog.isOpen || dialog.status !== "wallets") return null;
+
+    return (
+        <button
+            type="button"
+            className={cn(refreshWalletsAppearance, className)}
+            onClick={dialog.refreshWallets}
+        >
+            {buttonText ?? "Refresh wallets"}
+        </button>
+    );
+}
+
+export function ConnectWalletDialogWalletList({
+    wallets,
+    show = "both",
+    className,
+    buttonClassName,
+}: {
+    /** Wallet names to show, in this order. Omit it to show every discovered wallet. */
+    wallets?: readonly string[];
+    /** `both` shows the icon and the name. `icon` and `name` show one of them. */
+    show?: ConnectWalletDialogWalletShow;
+    className?: ClassValue;
+    /** Merged onto each wallet button after `defaults.dialogListButtonClassName`. */
+    buttonClassName?: ClassValue;
+}) {
+    const dialog = useConnectWalletDialog();
+    if (!dialog.isOpen || dialog.status !== "wallets") return null;
+
+    const visible = orderedWallets(dialog.wallets, wallets);
+
+    if (dialog.connectorMissing) {
+        return <p className={dialogMutedAppearance}>Mount ccc.Provider above this dialog to list wallets.</p>;
+    }
+
+    if (visible.length === 0) {
+        return (
+            <p className={dialogMutedAppearance}>
+                {dialog.walletsLoading || !dialog.discoverySettled ? "Looking for wallets…" : "No wallets found."}
+            </p>
+        );
+    }
+
+    return (
+        <ul className={cn("flex flex-col gap-2", className)}>
+            {visible.map((wallet) => (
+                <li key={wallet.name}>
+                    <WalletOption wallet={wallet} show={show} className={buttonClassName} />
+                </li>
+            ))}
+        </ul>
+    );
+}
+
+export function ConnectWalletDialogWallet({
+    name,
+    show = "both",
+    className,
+}: {
+    /** CCC wallet name, such as `JoyID` or `MetaMask`. */
+    name: string;
+    show?: ConnectWalletDialogWalletShow;
+    className?: ClassValue;
+}) {
+    const dialog = useConnectWalletDialog();
+    if (!dialog.isOpen || dialog.status !== "wallets") return null;
+
+    const wallet = dialog.wallets.find((item) => item.name === name);
+    if (!wallet) return null;
+
+    return <WalletOption wallet={wallet} show={show} className={className} />;
 }
 
 export function ConnectWalletDialogSigners({

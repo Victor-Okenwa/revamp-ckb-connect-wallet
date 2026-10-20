@@ -155,7 +155,16 @@ const components: ComponentDoc[] = [
   <ConnectWalletButton />
   <ConnectWalletDialog>
     <ConnectWalletDialogOverlay>
-      <ConnectWalletDialogWallets />
+      <ConnectWalletDialogWallets>
+        <ConnectWalletDialogWalletsHeader>
+          <h2>Connect Wallet</h2>
+          <ConnectWalletDialogClose />
+        </ConnectWalletDialogWalletsHeader>
+        <ConnectWalletDialogWalletList show="both" />
+        <ConnectWalletDialogWalletsFooter>
+          <ConnectWalletDialogWalletsRefresh />
+        </ConnectWalletDialogWalletsFooter>
+      </ConnectWalletDialogWallets>
       <ConnectWalletDialogSigners />
       <ConnectWalletDialogConnecting />
       <ConnectWalletDialogAccount>
@@ -182,7 +191,9 @@ const components: ComponentDoc[] = [
     name: "ConnectWalletDialogOverlay",
     summary: "Optional centered modal. Skip it when the popup should be a dropdown, drawer, or another layout.",
     example: `<ConnectWalletDialogOverlay label="Connect a wallet">
-  <ConnectWalletDialogWallets />
+  <ConnectWalletDialogWallets>
+    <ConnectWalletDialogWalletList />
+  </ConnectWalletDialogWallets>
   <ConnectWalletDialogAccount />
 </ConnectWalletDialogOverlay>`,
     props: [
@@ -195,11 +206,83 @@ const components: ComponentDoc[] = [
   {
     id: "dialog-wallets",
     name: "ConnectWalletDialogWallets",
-    summary: "Wallet list. Renders only while the dialog is open on the wallet step. One signer connects immediately. Several signers move to the chain step.",
-    example: `<ConnectWalletDialogWallets buttonClassName="rounded-none" />`,
+    summary: "Wallet step container. Renders nothing until the dialog is open on the wallet step. Put the header, wallet list, and footer inside it.",
+    example: `<ConnectWalletDialogWallets>
+  <ConnectWalletDialogWalletsHeader>
+    <h2>Connect Wallet</h2>
+    <ConnectWalletDialogClose />
+  </ConnectWalletDialogWalletsHeader>
+  <ConnectWalletDialogWalletList />
+  <ConnectWalletDialogWalletsFooter>
+    <ConnectWalletDialogWalletsRefresh />
+  </ConnectWalletDialogWalletsFooter>
+</ConnectWalletDialogWallets>`,
     props: [
-      { name: "className", type: "ClassValue", detail: "Merged onto the section." },
-      { name: "buttonClassName", type: "ClassValue", detail: "Merged onto each wallet button after defaults.dialogListButtonClassName." },
+      { name: "children", type: "React.ReactNode", detail: "Header, list, and footer." },
+      { name: "className", type: "ClassValue", detail: "Merged onto the container. Built-in is flex flex-col gap-3." },
+    ],
+  },
+  {
+    id: "dialog-wallets-header",
+    name: "ConnectWalletDialogWalletsHeader",
+    summary: "Wallet step header. Renders only on the wallet step.",
+    example: `<ConnectWalletDialogWalletsHeader>
+  <h2>Connect Wallet</h2>
+  <ConnectWalletDialogClose />
+</ConnectWalletDialogWalletsHeader>`,
+    props: [
+      { name: "children", type: "React.ReactNode", detail: "Usually the title and the close button." },
+      { name: "className", type: "ClassValue", detail: "Merged onto the header." },
+    ],
+  },
+  {
+    id: "dialog-wallet-list",
+    name: "ConnectWalletDialogWalletList",
+    summary: "Discovered wallets. Omit wallets to show every wallet. Pass names to show that set, in that order. show controls the icon, the name, or both. Each button has a ckb-wallet-* class from its name, so a Tailwind accessor can style one wallet.",
+    example: `<ConnectWalletDialogWalletList
+  wallets={["JoyID", "MetaMask"]}
+  show="both"
+  buttonClassName="rounded-none"
+  className="[&_.ckb-wallet-metamask]:bg-orange-500"
+/>`,
+    props: [
+      { name: "wallets", type: "readonly string[]", detail: "Wallet names to show, in this order. Omit it to show every discovered wallet." },
+      { name: "show", type: "\"icon\" | \"name\" | \"both\"", detail: "What each row shows. Built-in is both." },
+      { name: "className", type: "ClassValue", detail: "Merged onto the list." },
+      { name: "buttonClassName", type: "ClassValue", detail: "Merged onto each row after defaults.dialogListButtonClassName." },
+    ],
+  },
+  {
+    id: "dialog-wallet",
+    name: "ConnectWalletDialogWallet",
+    summary: "One wallet row. Renders nothing until CCC has discovered that name. Use it when a single wallet needs its own classes.",
+    example: `<ConnectWalletDialogWallet name="JoyID" show="icon" className="bg-blue-600 text-white" />`,
+    props: [
+      { name: "name", type: "string", detail: "CCC wallet name, such as JoyID or MetaMask." },
+      { name: "show", type: "\"icon\" | \"name\" | \"both\"", detail: "What the row shows. Built-in is both." },
+      { name: "className", type: "ClassValue", detail: "Merged onto the row after defaults.dialogListButtonClassName." },
+    ],
+  },
+  {
+    id: "dialog-wallets-footer",
+    name: "ConnectWalletDialogWalletsFooter",
+    summary: "Wallet step footer. Renders only on the wallet step. A usual place for the refresh button.",
+    example: `<ConnectWalletDialogWalletsFooter>
+  <ConnectWalletDialogWalletsRefresh buttonText="Refresh wallets" />
+</ConnectWalletDialogWalletsFooter>`,
+    props: [
+      { name: "children", type: "React.ReactNode", detail: "Footer contents." },
+      { name: "className", type: "ClassValue", detail: "Merged onto the footer." },
+    ],
+  },
+  {
+    id: "dialog-wallets-refresh",
+    name: "ConnectWalletDialogWalletsRefresh",
+    summary: "Asks CCC to look for wallets again. Renders only on the wallet step. buttonText replaces the visible label.",
+    example: `<ConnectWalletDialogWalletsRefresh buttonText="Look again" />`,
+    props: [
+      { name: "buttonText", type: "React.ReactNode", detail: "Visible label. Built-in is Refresh wallets." },
+      { name: "className", type: "ClassValue", detail: "Merged onto the button." },
     ],
   },
   {

@@ -208,7 +208,11 @@ const exampleDialog = `import {
   ConnectWalletDialogConnecting,
   ConnectWalletDialogOverlay,
   ConnectWalletDialogSigners,
+  ConnectWalletDialogWalletList,
   ConnectWalletDialogWallets,
+  ConnectWalletDialogWalletsFooter,
+  ConnectWalletDialogWalletsHeader,
+  ConnectWalletDialogWalletsRefresh,
   ConnectWalletDid,
   ConnectWalletDidAvatar,
   ConnectWalletDidId,
@@ -239,7 +243,16 @@ export function Wallet() {
       <Connected />
       <ConnectWalletDialog>
         <ConnectWalletDialogOverlay>
-          <ConnectWalletDialogWallets />
+          <ConnectWalletDialogWallets>
+            <ConnectWalletDialogWalletsHeader>
+              <h2 className="text-base font-semibold">Connect Wallet</h2>
+              <ConnectWalletDialogClose />
+            </ConnectWalletDialogWalletsHeader>
+            <ConnectWalletDialogWalletList show="both" />
+            <ConnectWalletDialogWalletsFooter>
+              <ConnectWalletDialogWalletsRefresh buttonText="Refresh wallets" />
+            </ConnectWalletDialogWalletsFooter>
+          </ConnectWalletDialogWallets>
           <ConnectWalletDialogSigners />
           <ConnectWalletDialogConnecting />
           <ConnectWalletDialogAccount>

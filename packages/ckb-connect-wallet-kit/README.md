@@ -303,7 +303,7 @@ Ends the CCC session. Renders nothing until a wallet is connected.
 
 Popup state for one composition. It renders no chrome. Mount it inside `ConnectWalletContainer`. While it is mounted, `open()` from the button and `useConnectWallet()` opens this dialog. Leave it out and those calls keep opening CCC's popup.
 
-The wallet list, chain list, and connecting state are built-in sections. The account step is a container you fill. Skip `ConnectWalletDialogOverlay` when the popup should be a dropdown, drawer, or page. `useConnectWalletDialog()` exposes the same state for a fully custom tree.
+The wallet step and the account step are containers you fill. The chain list and connecting state are built-in sections. Skip `ConnectWalletDialogOverlay` when the popup should be a dropdown, drawer, or page. `useConnectWalletDialog()` exposes the same state for a fully custom tree.
 
 ```tsx
 <ConnectWalletContainer>
@@ -315,7 +315,16 @@ The wallet list, chain list, and connecting state are built-in sections. The acc
   </button>
   <ConnectWalletDialog>
     <ConnectWalletDialogOverlay>
-      <ConnectWalletDialogWallets />
+      <ConnectWalletDialogWallets>
+        <ConnectWalletDialogWalletsHeader>
+          <h2>Connect Wallet</h2>
+          <ConnectWalletDialogClose />
+        </ConnectWalletDialogWalletsHeader>
+        <ConnectWalletDialogWalletList wallets={["JoyID", "MetaMask"]} show="both" />
+        <ConnectWalletDialogWalletsFooter>
+          <ConnectWalletDialogWalletsRefresh buttonText="Refresh wallets" />
+        </ConnectWalletDialogWalletsFooter>
+      </ConnectWalletDialogWallets>
       <ConnectWalletDialogSigners />
       <ConnectWalletDialogConnecting />
       <ConnectWalletDialogAccount>
@@ -383,12 +392,70 @@ Optional centered modal: portal, backdrop, Escape, and focus wrap. Renders nothi
 
 ### `ConnectWalletDialogWallets`
 
-Wallet list. Renders only while the dialog is open on the wallet step.
+Wallet step container. Renders its children only while the dialog is open on the wallet step.
 
 | Prop | Type | Default | What it does |
 | --- | --- | --- | --- |
-| `className` | `ClassValue` | — | Merged onto the section. |
-| `buttonClassName` | `ClassValue` | — | Merged onto each wallet button after `defaults.dialogListButtonClassName`. |
+| `children` | `React.ReactNode` | — | Header, wallet list, and footer. |
+| `className` | `ClassValue` | — | Merged onto the container. Built-in is `flex flex-col gap-3`. |
+
+### `ConnectWalletDialogWalletsHeader`
+
+Row for the wallet step. A usual place for the title and `ConnectWalletDialogClose`.
+
+| Prop | Type | Default | What it does |
+| --- | --- | --- | --- |
+| `children` | `React.ReactNode` | — | Header contents. |
+| `className` | `ClassValue` | — | Merged onto the header. |
+
+### `ConnectWalletDialogWalletsFooter`
+
+Footer for the wallet step. A usual place for the refresh button.
+
+| Prop | Type | Default | What it does |
+| --- | --- | --- | --- |
+| `children` | `React.ReactNode` | — | Footer contents. |
+| `className` | `ClassValue` | — | Merged onto the footer. |
+
+### `ConnectWalletDialogWalletsRefresh`
+
+Asks CCC to look for wallets again. Renders only on the wallet step.
+
+| Prop | Type | Default | What it does |
+| --- | --- | --- | --- |
+| `buttonText` | `React.ReactNode` | `"Refresh wallets"` | Visible label. |
+| `className` | `ClassValue` | — | Merged onto the button. |
+
+### `ConnectWalletDialogWalletList`
+
+The discovered wallets. Omit `wallets` to show every wallet CCC returned, in CCC's order. Pass names to show that set, in that order. A name that is not discovered yet is skipped until refresh finds it. One signer connects immediately. Several signers move to the chain step.
+
+| Prop | Type | Default | What it does |
+| --- | --- | --- | --- |
+| `wallets` | `readonly string[]` | every discovered wallet | Wallet names to show, in this order. |
+| `show` | `"icon" \| "name" \| "both"` | `"both"` | Icon, name, or both. An icon-only row keeps the wallet name as its accessible name. |
+| `className` | `ClassValue` | — | Merged onto the list. |
+| `buttonClassName` | `ClassValue` | — | Merged onto each row after `defaults.dialogListButtonClassName`. |
+
+Each button also gets a class from the wallet’s CCC name, so a Tailwind class accessor can style one wallet. The class is that name in lowercase, with every run of characters outside `a-z` and `0-9` replaced by `-`, then prefixed with `ckb-wallet-`. `MetaMask` is `ckb-wallet-metamask`. `JoyID Passkey` is `ckb-wallet-joyid-passkey`. `OKX Wallet` is `ckb-wallet-okx-wallet`.
+
+```tsx
+<ConnectWalletDialogWalletList className="[&_.ckb-wallet-metamask]:bg-orange-500" />
+```
+
+`buttonClassName` still styles every row the same way. `ConnectWalletDialogWallet` carries the same name class, and its own `className` styles that one row.
+
+### `ConnectWalletDialogWallet`
+
+One wallet row, for a layout the list does not cover. Renders nothing until CCC has discovered that name.
+
+| Prop | Type | Default | What it does |
+| --- | --- | --- | --- |
+| `name` | `string` | — | CCC wallet name, such as `"JoyID"`. |
+| `show` | `"icon" \| "name" \| "both"` | `"both"` | Icon, name, or both. |
+| `className` | `ClassValue` | — | Merged onto the row after `defaults.dialogListButtonClassName`. |
+
+The row also has the same `ckb-wallet-*` class as a list button for that name.
 
 ### `ConnectWalletDialogSigners`
 

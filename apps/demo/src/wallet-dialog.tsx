@@ -9,7 +9,11 @@ import {
   ConnectWalletDialogConnecting,
   ConnectWalletDialogOverlay,
   ConnectWalletDialogSigners,
+  ConnectWalletDialogWalletList,
   ConnectWalletDialogWallets,
+  ConnectWalletDialogWalletsFooter,
+  ConnectWalletDialogWalletsHeader,
+  ConnectWalletDialogWalletsRefresh,
   ConnectWalletDid,
   ConnectWalletDidAvatar,
   ConnectWalletDidId,
@@ -23,7 +27,16 @@ export function WalletDialog() {
   return (
     <ConnectWalletDialog>
       <ConnectWalletDialogOverlay>
-        <ConnectWalletDialogWallets />
+        <ConnectWalletDialogWallets>
+          <ConnectWalletDialogWalletsHeader>
+            <h2 className="text-base font-semibold">Connect Wallet</h2>
+            <ConnectWalletDialogClose />
+          </ConnectWalletDialogWalletsHeader>
+          <ConnectWalletDialogWalletList />
+          <ConnectWalletDialogWalletsFooter>
+            <ConnectWalletDialogWalletsRefresh />
+          </ConnectWalletDialogWalletsFooter>
+        </ConnectWalletDialogWallets>
         <ConnectWalletDialogSigners />
         <ConnectWalletDialogConnecting />
         <ConnectWalletDialogAccount>
